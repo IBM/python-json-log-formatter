@@ -1,3 +1,3 @@
 # MAINTAINERS
 
-Christopher Ferris - chrisfer@us.ibm.com
+Niels Korschinsky - niels.korschinsky@ibm.com

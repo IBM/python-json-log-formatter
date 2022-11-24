@@ -1,13 +1,22 @@
-# Changelog
+# Change log
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+The format is based on [Keep a Changelog](http://keepachangelog.com/)
+and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.0.1] - 2019-02-15
+## Python-Logger [Unreleased] - yyyy-mm-dd
 
 ### Added
-- Added a changelog
 
-[unreleased]: https://github.com/ibm/repo-template/compare/v0.0.1...HEAD
-[0.0.1]: https://github.com/ibm/repo-template/releases/tag/v0.0.1
+### Changed
+
+### Fixed
+
+### Known Issues
+
+## Python-Logger [1.0.0] - 2022-11-24
+
+### Added
+
+The initial release of the python logging module

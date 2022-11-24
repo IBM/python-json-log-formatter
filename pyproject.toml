@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "python_json_log_formatter"
+version = "1.0.0"
+authors = [
+  { name="Niels Korschinsky", email="niels.korschinsky@ibm.com" },
+]
+description = "Supplements a default formatter configuration for machine-readable JSON logging and applies it"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/IBM/python_json_log_formatter"
+"Bug Tracker" = "https://github.com/IBM/python_json_log_formatter/issues"
