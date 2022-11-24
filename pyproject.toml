@@ -18,5 +18,5 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/IBM/python_json_log_formatter"
-"Bug Tracker" = "https://github.com/IBM/python_json_log_formatter/issues"
+"Homepage" = "https://github.com/IBM/python-json-log-formatter"
+"Bug Tracker" = "https://github.com/IBM/python-json-log-formatter/issues"
