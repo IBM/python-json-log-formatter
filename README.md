@@ -7,12 +7,13 @@ Please avoid copy-pasting as no updates can be supplied that way.
 
 ## Usage
 
-1. Please first include the `PythonLogger` module, using a `from module import class` statement.
-2. After the imports, please declare a version constant. \
+1. Install the module via the `requirements.txt` or per CLI: `pip install python-json-log-formatter`
+2. Please include the `PythonLogger` module, using a `from module import class` statement.
+3. After the imports, please declare a version constant. \
     This constant should use [semantic versioning](https://semver.org/#semantic-versioning-specification-semver), with a prepended date `(YYYY/MM/DD)`.\
     Other examples, without the date, can be found [here](https://ihateregex.io/expr/semver/)
-3. Before any argument parsing or any other logging, the logger should be initialized
-4. In **EVERY** file, the logger needs to be imported using `LOGGER = logging.getLogger(__name__)`
+4. Before any argument parsing or any other logging, the logger should be initialized
+5. In **EVERY** file, the logger needs to be imported using `LOGGER = logging.getLogger(__name__)`
 
 ```python
 from python_logger import PythonLogger
