@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
+## Python-Logger [1.0.2] - 2022-11-25
+
+### Added
+
+Release Workflow
+
 ## Python-Logger [1.0.1] - 2022-11-24
 
 ### Added
