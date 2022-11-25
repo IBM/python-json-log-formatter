@@ -1,5 +1,9 @@
 # python-logger
 
+![License](https://img.shields.io/hexpm/l/apa)
+![PyPI](https://img.shields.io/pypi/v/python-json-log-formatter)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/IBM/python-json-log-formatter)
+
 Supplements a default formatter configuration for machine-readable JSON logging and applies it.
 
 This module should be included as a sub-module in python projects with logging.

@@ -33,7 +33,7 @@ import traceback
 from typing import Any, Dict
 
 
-VERSION = "1.0.1 (2022/11/24)"
+VERSION = "1.0.2 (2022/11/25)"
 
 class PythonLogger:
     @staticmethod
