@@ -15,6 +15,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
+## Python-Logger [2.0.0] - 2022-11-28
+
+### Added
+
+* Type stub file
+
+### Changed
+
+* Requires `app` parameter and allows for an additional context-dictionary to be supplied
+* Uses python3.9 instead of python3.10 for better compatibility.
+
+### Fixed
+
+* Every logging uses the hardcoded `etl_query_generator` as the name. It's free now.
+
+### Known Issues
+
 ## Python-Logger [1.0.2] - 2022-11-25
 
 ### Added
