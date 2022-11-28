@@ -30,14 +30,17 @@ import json
 from logging import INFO, LogRecord, Filter, StreamHandler, basicConfig
 import re
 import traceback
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 
-VERSION = "1.0.2 (2022/11/25)"
+VERSION = "2.0.0 (2022/11/28)"
 
 class PythonLogger:
     @staticmethod
-    def setup_logger(version_constant: str, logging_level: int = INFO):
+    def setup_logger(version_constant: str,
+                     app: str,
+                     extra_context_dict: Optional[Dict[str, str]] = None,
+                     logging_level: int = INFO) -> None:
         """Setups the root logger of the system. To be called before any logging commands in the main file (very top).
 
         Sets the logging format for the root logger and thus for every child logger.
@@ -49,6 +52,8 @@ class PythonLogger:
 
         Args:
             version_constant (str): Program version, requires semantic version format '1.0.0' with a prefix '(yyyy/mm/dd)'
+            app (str): Name of the app for the logger, mandatory for the context
+            extra_context_dict (Dict[str, str]): additional logging information like 'env', 'processing_id' and more.
             logging_level (int, optional): Log level of root logger. Defaults to INFO.
 
         Raises:
@@ -62,7 +67,11 @@ class PythonLogger:
             raise ValueError("Incorrect version format. Please use semantic versioning and prepend '(yyyy/mm/dd)':https://semver.org/#semantic-versioning-specification-semver  https://ihateregex.io/expr/semver/")
 
         handler = StreamHandler()
-        handler.addFilter(ContextFilter({"app": 'etl_query_generator'}, version_constant))
+
+        context_dict = extra_context_dict or {}
+        context_dict["app"] = app
+        context_dict["version"] = version_constant
+        handler.addFilter(ContextFilter(context_dict))
         basicConfig(
             level=logging_level,
             format="%(asctime)s %(name)s] %(levelname)s: %(message)s",
@@ -75,11 +84,10 @@ class ContextFilter(Filter):
     These structured JSON log lines are automatically parsed and indexed by LogDNA.
     """
 
-    def __init__(self, context: Dict[str, str], version: str) -> None:
+    def __init__(self, context: Dict[str, str]) -> None:
         super().__init__()
 
-        self.__context = context
-        self.__version = version
+        self.__context: Dict[str, str] = context
 
     def set_context(self, context: Dict[str, str]) -> None:
         self.__context = context
@@ -87,8 +95,7 @@ class ContextFilter(Filter):
     def filter(self, record: LogRecord) -> bool:
         """Combine message and contextual information into message argument of the record."""
         new_record_msg: Dict[str, Any] = {
-            "message": record.msg,
-            "version": self.__version
+            "message": record.msg
         }
 
         # Add contextual information to the record message
