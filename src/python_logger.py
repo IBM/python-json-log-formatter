@@ -87,7 +87,7 @@ class PythonLogger:
     )
 
     @classmethod
-    def update_context(cls, context: Dict[str, str]):
+    def update_context(cls, context: Dict[str, str]) -> None:
         cls.__context_filter.update_context(context)
 
 class _ContextFilter(Filter):
