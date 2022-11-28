@@ -1,8 +1,13 @@
 # python-logger
 
-![License](https://img.shields.io/hexpm/l/apa)
-![PyPI](https://img.shields.io/pypi/v/python-json-log-formatter)
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/IBM/python-json-log-formatter)
+<p align="center">
+    <a href="https://github.com/IBM/python-json-log-formatter/blob/master/LICENSE" alt="Licence">
+        <img src="https://img.shields.io/hexpm/l/apa" /></a>
+    <a href="https://pypi.org/project/python-json-log-formatter/" alt="PyPi">
+        <img src="https://img.shields.io/pypi/v/python-json-log-formatter" /></a>
+    <a href="https://github.com/IBM/python-json-log-formatter/releases" alt="GitHub release (latest SemVer)">
+        <img src="https://img.shields.io/github/v/release/IBM/python-json-log-formatter" /></a>
+</p>
 
 Supplements a default formatter configuration for machine-readable JSON logging and applies it.
 
