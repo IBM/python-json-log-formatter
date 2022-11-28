@@ -26,18 +26,25 @@ Author:
  Niels Korschinsky
 """
 
+from __future__ import annotations
+
+
 import json
 from logging import INFO, LogRecord, Filter, StreamHandler, basicConfig
 import re
 import traceback
-from typing import Any, Dict, Optional
+from typing import Any, ClassVar, Dict, Optional
 
 
-VERSION = "2.0.0 (2022/11/28)"
+VERSION = "2.0.2 (2022/11/28)"
 
 class PythonLogger:
-    @staticmethod
-    def setup_logger(version_constant: str,
+
+    __context_filter: ClassVar[_ContextFilter]
+
+    @classmethod
+    def setup_logger(cls,
+                     version_constant: str,
                      app: str,
                      extra_context_dict: Optional[Dict[str, str]] = None,
                      logging_level: int = INFO) -> None:
@@ -71,14 +78,19 @@ class PythonLogger:
         context_dict = extra_context_dict or {}
         context_dict["app"] = app
         context_dict["version"] = version_constant
-        handler.addFilter(ContextFilter(context_dict))
+        cls.__context_filter =_ContextFilter(context_dict)
+        handler.addFilter(cls.__context_filter)
         basicConfig(
             level=logging_level,
             format="%(asctime)s %(name)s] %(levelname)s: %(message)s",
             handlers=[handler]
     )
 
-class ContextFilter(Filter):
+    @classmethod
+    def update_context(cls, context: Dict[str, str]):
+        cls.__context_filter.update_context(context)
+
+class _ContextFilter(Filter):
     """
     This is a filter which transforms log lines with metadata into structured JSON log lines.
     These structured JSON log lines are automatically parsed and indexed by LogDNA.
@@ -86,11 +98,10 @@ class ContextFilter(Filter):
 
     def __init__(self, context: Dict[str, str]) -> None:
         super().__init__()
-
         self.__context: Dict[str, str] = context
 
-    def set_context(self, context: Dict[str, str]) -> None:
-        self.__context = context
+    def update_context(self, context: Dict[str, str]) -> None:
+        self.__context.update(context)
 
     def filter(self, record: LogRecord) -> bool:
         """Combine message and contextual information into message argument of the record."""
