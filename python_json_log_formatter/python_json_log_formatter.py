@@ -37,7 +37,7 @@ from typing import Any, ClassVar, Dict, Optional
 from os import getenv, getcwd
 
 
-VERSION = "3.0.0"
+VERSION = "3.0.0 (2022/12/09)"
 
 class PythonLogger:
 
