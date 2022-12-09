@@ -36,7 +36,7 @@ import traceback
 from typing import Any, ClassVar, Dict, Optional
 
 
-VERSION = "2.0.3 (2022/12/09)"
+VERSION = "2.0.4 (2022/12/09)"
 
 class PythonLogger:
 

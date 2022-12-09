@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
+## Python-Logger [2.0.4] - 2022-12-09
+
+## Changed
+
+* re-added the stub files in hope of fixing typing
+
 ## Python-Logger [2.0.3] - 2022-12-09
 
 ### Added
