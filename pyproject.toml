@@ -4,7 +4,6 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "python_json_log_formatter"
-version = "3.0.0"
 authors = [
   { name="Niels Korschinsky", email="niels.korschinsky@ibm.com" },
 ]
@@ -17,10 +16,14 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
+dynamic = ["version"]
+
 [project.urls]
 "Homepage" = "https://github.com/IBM/python-json-log-formatter"
 "Bug Tracker" = "https://github.com/IBM/python-json-log-formatter/issues"
 
-[tool.setuptools.package-dir]
-python_json_log_formatter="python_json_log_formatter"
-include = ["*"]
+[tool.setuptools.dynamic]
+version = {attr = "python_json_log_formatter.VERSION"}
+
+[tool.setuptools]
+packages = ["python_json_log_formatter"]
