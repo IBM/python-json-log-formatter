@@ -169,7 +169,7 @@ class _ContextFilter(Filter):
             # Clear record.exc_info
             old_record.exc_info = None
 
-    def filter_imported_modules(self, new_record_dict: Dict[str, Any], record: LogRecord):
+    def __filter_imported_modules(self, new_record_dict: Dict[str, Any], record: LogRecord):
         """Filters errors and critical failures from dependencies and sets their level to max warning.
 
         Args:
@@ -206,7 +206,7 @@ class _ContextFilter(Filter):
         """Combine message and contextual information into message argument of the record."""
         new_record_msg: Dict[str, Any] = {}
 
-        self.filter_imported_modules(new_record_msg, record)
+        self.__filter_imported_modules(new_record_msg, record)
         self.__add_existing_info(new_record_msg, record)
 
         self.__add_context_info(new_record_msg)

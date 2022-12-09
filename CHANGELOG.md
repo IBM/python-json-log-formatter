@@ -17,9 +17,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Python-Logger [3.0.0] - 2022-12-09
 
+### Added
+
+* Includes a lot of env vars in the logging automatically
+* Calculates the remaining job-restarts
+* Submodule error and critical level is set to warning
+* Finally working typing
+
 ### Changed
 
 * Changed module name from `python_logger` to `python-json-log-formatter` to match import name
+* Makes the date in the version string optional to support dynamic version imports in the build process
+* Moved a lot of code into individual functions for readability
 
 ## Python-Logger [2.0.4] - 2022-12-09
 
