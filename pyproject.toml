@@ -29,4 +29,4 @@ version = {attr = "python_json_log_formatter.VERSION"}
 packages = ["python_json_log_formatter"]
 
 [tool.setuptools.package-data]
-python_json_log_formatter = ["*.pyi", "*.py", "py.typed]
+python_json_log_formatter = ["*.pyi", "*.py", "py.typed"]
