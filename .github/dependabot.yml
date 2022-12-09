@@ -1,0 +1,22 @@
+version: 2
+updates:
+
+  # Maintain dependencies for pip
+  - package-ecosystem: "pip" # See documentation for possible values
+    directory: "/" # Location of the requirements file, relative to the root of the repository.
+    schedule:
+      interval: "monthly"
+    ignore:
+      # ignore patch level updates for any dependency
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
+
+    # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions" # See documentation for possible values
+    directory: "/" # For GitHub Actions, set the directory to / to check for workflow files in .github/workflows.
+    schedule:
+      interval: "monthly"
+    ignore:
+      # ignore patch level updates for any dependency
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
