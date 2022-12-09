@@ -15,6 +15,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
+## Python-Logger [2.0.3] - 2022-12-09
+
+### Added
+
+* py.typed file for supporting typing
+* added automatic dependabot version upgrades
+
+### Changed
+
+* removed old stub files as the typing is included within the python files themselves
+* Upgraded python deploy action from v3 to v4
+
 ## Python-Logger [2.0.2] - 2022-11-28
 
 ### Added
