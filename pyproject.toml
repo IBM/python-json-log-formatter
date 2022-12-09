@@ -21,7 +21,5 @@ classifiers = [
 "Homepage" = "https://github.com/IBM/python-json-log-formatter"
 "Bug Tracker" = "https://github.com/IBM/python-json-log-formatter/issues"
 
-[tool.setuptools.packages.find]
-where = ["src"]
-include = ["*"]
-namespaces = false
+[tool.setuptools.package-dir]
+python_json_log_formatter="python_json_log_formatter"
