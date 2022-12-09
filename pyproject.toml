@@ -20,3 +20,5 @@ classifiers = [
 [project.urls]
 "Homepage" = "https://github.com/IBM/python-json-log-formatter"
 "Bug Tracker" = "https://github.com/IBM/python-json-log-formatter/issues"
+
+[tool.setuptools]
