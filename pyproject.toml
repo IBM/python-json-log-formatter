@@ -26,4 +26,4 @@ dynamic = ["version"]
 version = {attr = "python_json_log_formatter.VERSION"}
 
 [tool.setuptools]
-packages = ["python_json_log_formatter"]
+packages = ["python_json_log_formatter", "python_json_log_formatter/py.typed"]
