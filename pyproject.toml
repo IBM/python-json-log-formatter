@@ -18,6 +18,13 @@ classifiers = [
 
 dynamic = ["version"]
 
+[options]
+zip_safe = True
+include_package_data = True
+
+[options.package_data]
+python_json_log_formatter = *.pyi, *.py, py.typed
+
 [project.urls]
 "Homepage" = "https://github.com/IBM/python-json-log-formatter"
 "Bug Tracker" = "https://github.com/IBM/python-json-log-formatter/issues"
@@ -26,4 +33,4 @@ dynamic = ["version"]
 version = {attr = "python_json_log_formatter.VERSION"}
 
 [tool.setuptools]
-packages = ["python_json_log_formatter", "python_json_log_formatter/py.typed"]
+packages = ["python_json_log_formatter"]
