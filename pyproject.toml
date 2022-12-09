@@ -23,5 +23,5 @@ classifiers = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["python_json_log_formatter*", "py.typed"]
+include = ["*"]
 namespaces = false
