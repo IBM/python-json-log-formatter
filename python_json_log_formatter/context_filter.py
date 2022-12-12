@@ -29,11 +29,13 @@ Author:
 from __future__ import annotations
 
 import json
-from logging import LogRecord, Filter, WARNING, getLevelName
+from logging import LogRecord, Filter, WARNING, getLevelName, getLogger
 from pathlib import Path
 import traceback
 from typing import Any, Dict
 from os import getenv, getcwd
+
+LOGGER = getLogger(__name__)
 
 class ContextFilter(Filter):
     """
@@ -41,18 +43,15 @@ class ContextFilter(Filter):
     These structured JSON log lines are automatically parsed and indexed by LogDNA.
     """
 
-    def __init__(self, context: Dict[str, str]) -> None:
-        super().__init__()
-        self.__context: Dict[str, str] = {}
-        self.update_context(context)
+    __job_retry_limit_env = "JOB_RETRY_LIMIT"
+    __job_retry_count_env = "JOB_INDEX_RETRY_COUNT"
 
-    def update_context(self, context: Dict[str, str]) -> None:
-        env_vars = [
+    __included_env_vars = [
             "ENVIRONMENT",
             "JOB_INDEX",
-            "JOB_INDEX_RETRY_COUNT",
+            __job_retry_count_env,
             "JOB_MODE",
-            "JOB_RETRY_LIMIT",
+            __job_retry_limit_env,
             "CE_DOMAIN",
             "CE_JOB",
             "CE_JOBRUN",
@@ -60,30 +59,46 @@ class ContextFilter(Filter):
             "HOSTNAME"
         ]
 
-        for env_var in env_vars:
-            var_val = getenv(env_var, None)
+    def __init__(self, context: Dict[str, str]) -> None:
+        super().__init__()
+        self.__context: Dict[str, str] = {}
+        self.update_context(context)
 
-            if var_val:
-                self.__context[env_var] = var_val
+    def __add_env_to_context(self, context_dict: Dict[str, str]):
+        for env_key in self.__included_env_vars:
+            env_value = getenv(env_key, None)
 
-        # calculate remaining job retries
+            if env_value:
+                if env_key in context_dict:
+                    # skip pre-set keys, as user input is more important than env vars
+                    # no real option of logging?
+                    LOGGER.warning(f"Context key {env_key} set by both user and automatic env detection, using user one.")
+                    continue
+                context_dict[env_key] = env_value
+
+    def __add_remaining_job_retries(self, context_dict: Dict[str, str]):
         try:
 
-            job_retry_count_str = getenv("JOB_INDEX_RETRY_COUNT", None)
-            job_retry_count_max_str = getenv("JOB_RETRY_LIMIT", None)
+            job_retry_count_str = getenv(self.__job_retry_count_env, None)
+            job_retry_count_max_str = getenv(self.__job_retry_limit_env, None)
             if job_retry_count_str and job_retry_count_max_str:
                 job_retry_count = int(job_retry_count_str)
                 job_retry_count_max = int(job_retry_count_max_str)
                 remaining_retries = str(job_retry_count_max - job_retry_count)
 
-                self.__context["job_remaining_retries"] = remaining_retries
-        except Exception:
+                context_dict["job_remaining_retries"] = remaining_retries
+        except Exception as ex:
             # impossible to calculate
-            # this is a antipattern, but this does not need to be logged
-            pass
+            LOGGER.warning("Impossible to calculate remaining job retries due to error", exc_info=ex)
 
 
-        self.__context.update(context)
+    def update_context(self, new_context_dict: Dict[str, str]) -> None:
+
+        self.__add_env_to_context(new_context_dict)
+
+        self.__add_remaining_job_retries(new_context_dict)
+
+        self.__context.update(new_context_dict)
 
     def __add_existing_info(self, new_record_dict: Dict[str, Any], old_record: LogRecord):
         # Append line number, path and level to log message

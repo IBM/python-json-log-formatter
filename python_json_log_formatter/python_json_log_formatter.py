@@ -66,11 +66,12 @@ class PythonLogger:
             ValueError: Incorrect version format supplied
         """
 
+        # check that the version string has the correct format
         version_match = re.fullmatch(
                 r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?(\s+\(\d{4}/\d{2}/\d{2}\))?$",
                 version_constant)
         if not version_match:
-            raise ValueError("Incorrect version format. Please use semantic versioning and prepend '(yyyy/mm/dd)':https://semver.org/#semantic-versioning-specification-semver  https://ihateregex.io/expr/semver/")
+            raise ValueError("Incorrect version format. Please use semantic versioning and prepend optionally '(yyyy/mm/dd)':https://semver.org/#semantic-versioning-specification-semver  https://ihateregex.io/expr/semver/")
 
         handler = StreamHandler()
 
