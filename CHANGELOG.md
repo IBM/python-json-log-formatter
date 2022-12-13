@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
-## Python-Logger [3.0.0] - 2022-12-09
+## Python-Logger [3.0.0] - 2022-12-13
 
 ### Added
 
@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 * Changed module name from `python_logger` to `python-json-log-formatter` to match import name
 * Makes the date in the version string optional to support dynamic version imports in the build process
 * Moved a lot of code into individual functions for readability
+* Build version determined automatically from the python code
 
 ## Python-Logger [2.0.4] - 2022-12-09
 
