@@ -139,14 +139,25 @@ class ContextFilter(Filter):
             if record.levelno < 40:
                 return
 
-            # if the module is located within the workdir it is actually code from this program
-            # other code is installed directly within the /opt/app-root/lib64/python3.9/site-packages/
-            workdir = Path(getcwd())
+
+            work_dir = Path(getcwd())
             log_path = Path(record.pathname)
-            # However, the venv directory needs also to be ignored
-            if log_path.is_relative_to(workdir) and "venv" not in record.pathname:
-                # this is module code which should be able to send error/critical messages
-                return
+
+            # from python 3.9 the main module should always be absolute, but sometimes it is not somehow.
+            # make sure the path is absolute
+            if not log_path.is_absolute():
+                log_path = log_path.resolve()
+
+            # if the module is located within the work dir it is actually code from this program
+            # other code is installed directly within the /opt/app-root/lib64/python3.9/site-packages/
+            if log_path.is_relative_to(work_dir):
+
+                # also verify it is not inside the venv dir
+                if "venv" not in record.pathname:
+                    # this is module code which should be able to send error/critical messages
+                    return
+
+            # now, the code is for sure from a requirement/sub-module and thus should be changed
 
             # save the old level
             new_record_dict["original_levelno"] = record.levelno

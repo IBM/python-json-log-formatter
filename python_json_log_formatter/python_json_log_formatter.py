@@ -1,6 +1,6 @@
 """
  ----------------------------------------------------------------------------------------------
-# Copyright 2019 IBM All Rights Reserved.
+# Copyright 2022 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ from typing import ClassVar, Dict, Optional
 from python_json_log_formatter.context_filter import ContextFilter
 
 
-VERSION = "3.0.0"
+VERSION = "3.0.1"
 
 class PythonLogger:
 

@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
+## Python-Logger [3.0.1] - 2022-12-21
+
+### Fixed
+
+* Log errors if the main module was called directly/relative call.
+
 ## Python-Logger [3.0.0] - 2022-12-13
 
 ### Added
