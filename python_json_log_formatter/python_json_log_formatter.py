@@ -35,7 +35,7 @@ from typing import ClassVar, Dict, Optional
 from python_json_log_formatter.context_filter import ContextFilter
 
 
-VERSION = "3.0.1"
+VERSION = "3.0.2"
 
 class PythonLogger:
 

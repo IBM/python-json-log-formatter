@@ -15,6 +15,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
+## Python-Logger [3.0.2] - 2023-01-21
+
+### Added
+
+* added `env` to the default env import
+
+### Fixed
+
+* Missing comma, fixing `env` and `JOB_INDEX` default included variables
+
 ## Python-Logger [3.0.1] - 2022-12-21
 
 ### Fixed

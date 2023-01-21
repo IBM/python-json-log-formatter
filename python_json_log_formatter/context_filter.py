@@ -48,6 +48,7 @@ class ContextFilter(Filter):
 
     __included_env_vars = [
             "ENVIRONMENT",
+            "env",
             "JOB_INDEX",
             __job_retry_count_env,
             "JOB_MODE",
