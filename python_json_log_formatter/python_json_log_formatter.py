@@ -38,6 +38,15 @@ from python_json_log_formatter.context_filter import ContextFilter
 VERSION = "3.0.2"
 
 class PythonLogger:
+    """This class wraps functions used for logging for an easier, direct access.
+
+    Methods:
+        setup_logger - Configures the root as required. To be called before any logging commands in the main file (very top).
+        update_context -
+
+    Raises:
+        ValueError: _description_
+    """
 
     __context_filter: ClassVar[ContextFilter]
 
@@ -47,7 +56,7 @@ class PythonLogger:
                      app: Optional[str],
                      extra_context_dict: Optional[Dict[str, str]] = None,
                      logging_level: int = INFO) -> None:
-        """Setups the root logger of the system. To be called before any logging commands in the main file (very top).
+        """Configures the root as required. To be called before any logging commands in the main file (very top).
 
         Sets the logging format for the root logger and thus for every child logger.
         In EVERY file where logging happens, please use `LOGGER = logging.getLogger(__name__)` to get an individual logger.
@@ -89,4 +98,12 @@ class PythonLogger:
 
     @classmethod
     def update_context(cls, context: Dict[str, str]) -> None:
+        """Updates additional context information added to each log line.
+
+        Will update the existing context with the given one, overwriting existing keys.
+        Existing keys without a new match will not be deleted
+
+        Args:
+            context (Dict[str, str]): context information to be included in each log line
+        """
         cls.__context_filter.update_context(context)

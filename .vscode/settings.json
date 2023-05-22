@@ -1,0 +1,52 @@
+{
+    "python.languageServer": "Pylance",
+    "python.linting.enabled": false,
+    "python.linting.pylintArgs": [
+        "--max-line-length=180"
+    ],
+
+    "python.analysis.completeFunctionParens": true,
+    "python.analysis.typeCheckingMode": "strict",
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    "python.analysis.inlayHints.variableTypes": true,
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportMissingTypeStubs": "warning",
+
+        "reportUnknownMemberType": "warning",
+        "reportUnknownArgumentType": "warning",
+        "reportUnknownLambdaType": "warning",
+        "reportUnknownVariableType": "warning",
+        "reportUnknownParameterType": "warning",
+
+        "reportUnnecessaryIsInstance": "warning",
+
+    },
+
+    "sonarlint.rules": {
+        "python:S134": "on",
+        "python:S1720": "on",
+        "python:S113": "on",
+        "python:S104": "on",
+        "python:S138": "on",
+        "python:S3801": "on",
+        "python:S1131": "on",
+        "python:LongIntegerWithLowercaseSuffixUsage": "on",
+        "python:S2325": "on",
+        "python:S1578": "on",
+        "python:ParsingError": "on",
+        "python:S5856": "on",
+        "python:OneStatementPerLine": "on",
+        "python:S5899": "on",
+        "python:S5918": "on",
+        "python:S5906": "on",
+        "python:S5953": "on",
+
+
+
+        "python:S1707": "on",
+        "python:S1451": "on",
+        "python:NoSonar": "on",
+
+    },
+
+}

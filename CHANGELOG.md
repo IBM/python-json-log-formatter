@@ -15,6 +15,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
+## Python-Logger [3.1.0] - 2023-05-22
+
+### Added
+
+* Full Method documentation
+* Testing file to execute the logger as stand-alone
+
+### Changed
+
+* Refactored the whole `context_filter` module to split up complex methods into smaller ones
+
 ## Python-Logger [3.0.2] - 2023-01-21
 
 ### Added

@@ -1,0 +1,13 @@
+{
+    "recommendations": [
+        "davidanson.vscode-markdownlint",
+        "ms-python.vscode-pylance",
+        "dorzey.vscode-sqlfluff",
+        "streetsidesoftware.code-spell-checker",
+        "sonarsource.sonarlint-vscode",
+        "njpwerner.autodocstring",
+        "donjayamanne.githistory",
+        "eamodio.gitlens",
+        "ms-python.python"
+    ]
+}
