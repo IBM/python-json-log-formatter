@@ -53,4 +53,9 @@ In EVERY file where logging happens, please use `LOGGER = logging.getLogger(__na
 Allows printing exception information on any logging level, not only on the `EXCEPTION` level but also for `INFO` or `DEBUG`.
 Supply `exec_info` to print these.
 
-Sets `pipeline_status` and `job_status` to `failed` on `ERROR` or `CRITICAL`, supports minor logging levels (41, etc).
+Sets `pipeline_status` and `job_status` to `failed` on `CRITICAL`, supports minor logging levels (41, etc).
+
+To disable the logging on local machines, supply `disable_log_formatting=True` when configuring the logger.
+Alternatively, without code changes, you can supply the ENV var `DISABLE_LOG_FORMATTING"=True` to generally disable it.
+
+Every attribute of the LogRecord will be included in the formatted message unless specified in the `excluded_logging_context_keys` list.

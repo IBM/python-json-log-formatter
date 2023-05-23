@@ -15,6 +15,26 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
+## Python-Logger [3.2.0] - 2023-05-23
+
+### Added
+
+* Added option to disable the log formatting for local development
+  * Either supply `disable_log_formatting=True` when initializing the logger
+  * Or supply the ENV attribute `DISABLE_LOG_FORMATTING=True`
+  * Will only check for ENV if it is not explicitly set to false
+* The logger includes all Logging-Record attributes by default
+  * Added an option to exclude individual fields, using the new attribute `excluded_logging_context_keys`
+  * No keys are excluded by default
+
+### Changed
+
+* The logger will set the `pipeline_status=failed` only if an error is critical, as regular errors must not mean a failure.
+
+### Fixed
+
+* Added missing bracket in log format string
+
 ## Python-Logger [3.1.0] - 2023-05-22
 
 ### Added

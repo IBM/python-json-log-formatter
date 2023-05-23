@@ -11,6 +11,9 @@
             "program": "${cwd}/testing.py",
             "console": "integratedTerminal",
             "justMyCode": true,
+            "env": {
+                "DISABLE_LOG_FORMATTING": "True"
+            },
             "args": [
 
             ]
