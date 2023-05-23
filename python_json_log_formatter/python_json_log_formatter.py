@@ -27,8 +27,10 @@ Author:
 """
 
 from __future__ import annotations
+from distutils.util import strtobool
 
 from logging import INFO, StreamHandler, basicConfig
+from os import getenv
 import re
 from typing import ClassVar, Dict, List, Optional
 
@@ -64,7 +66,8 @@ class PythonLogger:
                      version_constant: str,
                      app: Optional[str],
                      extra_context_dict: Optional[Dict[str, str]] = None,
-                     logging_level: int = INFO) -> None:
+                     logging_level: int = INFO,
+                     disable_log_formatting: Optional[bool] = None) -> None:
         """Configures the root as required. To be called before any logging commands in the main file (very top).
 
         Sets the logging format for the root logger and thus for every child logger.
@@ -78,7 +81,8 @@ class PythonLogger:
             version_constant (str): Program version, requires semantic version format '1.0.0' with a prefix '(yyyy/mm/dd)'
             app (str): Name of the app for the logger.
             extra_context_dict (Dict[str, str]): additional logging information like 'env', 'processing_id' and more.
-            logging_level (int, optional): Log level of root logger. Defaults to INFO.
+            logging_level (int): Log level of root logger. Defaults to INFO.
+            disable_log_formatting (bool, optional): Disable the log formatting, e.g. local development. Defaults to None/False.
 
         Raises:
             ValueError: Incorrect version format supplied
@@ -91,13 +95,18 @@ class PythonLogger:
         if not version_match:
             raise ValueError("Incorrect version format. Please use semantic versioning and prepend optionally '(yyyy/mm/dd)':https://semver.org/#semantic-versioning-specification-semver  https://ihateregex.io/expr/semver/")
 
+        if disable_log_formatting is None:
+            disable_log_formatting =  bool(strtobool(
+                getenv("DISABLE_LOG_FORMATTING", "False")
+                ))
+
         handler = StreamHandler()
 
         context_dict = extra_context_dict or {}
         if app:
             context_dict["app"] = app
         context_dict["version"] = version_constant
-        cls.__context_filter = ContextFilter(context_dict)
+        cls.__context_filter = ContextFilter(context_dict, disable_log_formatting)
         handler.addFilter(cls.__context_filter)
         basicConfig(
             level=logging_level,

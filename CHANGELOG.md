@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+* Added option to disable the log formatting for local development
+  * Either supply `disable_log_formatting=True` when initializing the logger
+  * Or supply the ENV attribute `DISABLE_LOG_FORMATTING=True`
+  * Will only check for ENV if it is not explicitly set to false
 * The logger includes all Logging-Record attributes by default
   * Added an option to exclude individual fields, using the new attribute `excluded_logging_context_keys`
   * No keys are excluded by default

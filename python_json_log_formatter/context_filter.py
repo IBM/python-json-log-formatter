@@ -83,8 +83,9 @@ class ContextFilter(Filter):
     ]
     """Keys of the logging Record which should not be included automatically."""
 
-    def __init__(self, context: Dict[str, str]) -> None:
+    def __init__(self, context: Dict[str, str], disable_log_formatting: bool = False) -> None:
         super().__init__()
+        self.__disable_log_formatting = disable_log_formatting
         self.__context: Dict[str, str] = {}
         self.update_context(context)
 
@@ -302,7 +303,12 @@ class ContextFilter(Filter):
         new_dict = self.__check_failed_pipeline_status(record)
         new_record_msg.update(new_dict)
 
-        # Override record message and clear record args
-        record.msg = json.dumps(new_record_msg)
+        dumped_new_dict = json.dumps(new_record_msg)
+        if not self.__disable_log_formatting:
+            # Override record message and clear record args
+            record.msg = dumped_new_dict
+        else:
+            # save it in new attribute, will not be shown.
+            record.log_formatting_message = dumped_new_dict
 
         return True
