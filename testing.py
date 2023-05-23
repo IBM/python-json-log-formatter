@@ -15,6 +15,7 @@ if __name__ == '__main__':
     LOGGER = getLogger(__name__)
 
     LOGGER.info("test", extra={"test": "testval1"})
+    LOGGER.info("test", {"test": "testval1"})
 
     PythonLogger.update_context(
         {

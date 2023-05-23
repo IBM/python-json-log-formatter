@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Python-Logger [3.2.0] - 2023-05-23
 
+### Added
+
+* The logger includes all Logging-Record attributes by default
+  * Added an option to exclude individual fields, using the new attribute `excluded_logging_context_keys`
+  * No keys are excluded by default
+
 ### Changed
 
 * The logger will set the `pipeline_status=failed` only if an error is critical, as regular errors must not mean a failure.

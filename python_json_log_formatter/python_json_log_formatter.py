@@ -30,7 +30,7 @@ from __future__ import annotations
 
 from logging import INFO, StreamHandler, basicConfig
 import re
-from typing import ClassVar, Dict, Optional
+from typing import ClassVar, Dict, List, Optional
 
 from python_json_log_formatter.context_filter import ContextFilter
 
@@ -49,6 +49,15 @@ class PythonLogger:
     """
 
     __context_filter: ClassVar[ContextFilter]
+
+    @property
+    def excluded_logging_context_keys(self) -> List[str]:
+        """Keys of the logging Record which should not be included automatically."""
+        return self.__context_filter.excluded_logging_context_keys
+
+    @excluded_logging_context_keys.setter
+    def excluded_logging_context_keys(self, value: List[str]) -> None:
+        self.__context_filter.excluded_logging_context_keys = value
 
     @classmethod
     def setup_logger(cls,

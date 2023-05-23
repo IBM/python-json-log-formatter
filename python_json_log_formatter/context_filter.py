@@ -29,13 +29,13 @@ Author:
 from __future__ import annotations
 
 import json
-from logging import CRITICAL, ERROR, LogRecord, Filter, WARNING, getLevelName, getLogger
+from logging import CRITICAL, ERROR, LogRecord, Filter, WARNING, Logger, getLevelName, getLogger
 from pathlib import Path
 import traceback
-from typing import Any, Dict, Mapping
+from typing import Any, Dict, List, Mapping
 from os import getenv, getcwd
 
-LOGGER = getLogger(__name__)
+LOGGER: Logger = getLogger(__name__)
 
 class ContextFilter(Filter):
     """
@@ -63,8 +63,25 @@ class ContextFilter(Filter):
             "CE_JOB",
             "CE_JOBRUN",
             "CE_SUBDOMAIN",
-            "HOSTNAME"
+            "HOSTNAME",
+            "BRANCH_NAME",
+            "TARGET_BRANCH_NAME"
         ]
+    """Keys of the environment which should be included by default"""
+
+    @property
+    def excluded_logging_context_keys(self) -> List[str]:
+        """Keys of the logging Record which should not be included automatically."""
+        return self.__excluded_logging_context_keys
+
+    @excluded_logging_context_keys.setter
+    def excluded_logging_context_keys(self, value: List[str]) -> None:
+        self.__excluded_logging_context_keys = value
+
+    __excluded_logging_context_keys: List[str] = [
+
+    ]
+    """Keys of the logging Record which should not be included automatically."""
 
     def __init__(self, context: Dict[str, str]) -> None:
         super().__init__()
@@ -149,7 +166,7 @@ class ContextFilter(Filter):
 
         self.__context.update(new_dict)
 
-    def __add_log_basic_info(self, record: LogRecord) -> Dict[str, Any]:
+    def __add_log_record_info(self, record: LogRecord) -> Dict[str, Any]:
         """Extracts log record information into a logging dict context.
 
         Used for transferring certain required information into the new logging context to avoid loosing this data.
@@ -158,29 +175,43 @@ class ContextFilter(Filter):
             new_record_dict (Dict[str, Any]): The new context which will receive the existing data, overwriting existing entries.
             old_record (LogRecord): old context of the log
         """
-        new_dict: Dict[str, Any] = {}
+
+        # add all available attributes of the record
+        # copy to ensure to not edit the record itself
+        new_dict: Dict[str, Any] = record.__dict__.copy()
+
+        for key in self.__excluded_logging_context_keys:
+            new_dict.pop(key, None)
 
         # add exec info to the message if available
         message = record.msg
         if record.exc_info:
+
+            # get the individual parts
             exc_type, exc_value, exc_traceback = record.exc_info
 
+            # only save the trace
             exc_info = ''.join(traceback.format_exception(exc_type, exc_value, exc_traceback))
+
+            # delete the info from the saved dict
+            new_dict.pop("exc_info")
+
+            # append it to the message to have it displayed as log message
             message = message + '\n' + exc_info
+
+        # remove msg, unsure whether the logging tool parser requires msg or message.
+        new_dict.pop("msg", None)
         new_dict['message'] = message
 
-        # Append line number and path to log message
-        new_dict['lineno'] = record.lineno
-        new_dict['pathname'] = record.pathname
 
-        # add log level
-        new_dict["levelno"] = record.levelno
-        new_dict["levelname"] = record.levelname
-
-        # Add existing metadata to the new record message
+        # Add arguments individual to the new record message
         if isinstance(record.args, dict):
             for k, v in record.args.items():
                 new_dict[k] = v
+            # set them to empty, as already included
+            record.args = {}
+            # remove it from the new_dict, as they are saved individually
+            new_dict.pop("args", None)
 
         return new_dict
 
@@ -235,6 +266,9 @@ class ContextFilter(Filter):
             # set all error/critical to warning
             record.levelno = WARNING
             record.levelname = getLevelName(WARNING)
+            # update possible already saved keys
+            new_dict["levelno"] = record.levelno
+            new_dict["levelname"] = record.levelname
             new_dict["filter_imported_modules"] = "Filtered"
 
         except Exception as ex:
@@ -262,17 +296,13 @@ class ContextFilter(Filter):
         new_dict = self.__filter_imported_modules(record)
         new_record_msg.update(new_dict)
 
-        new_dict = self.__add_log_basic_info(record)
+        new_dict = self.__add_log_record_info(record)
         new_record_msg.update(new_dict)
 
         new_dict = self.__check_failed_pipeline_status(record)
         new_record_msg.update(new_dict)
 
-        new_dict = self.__add_log_basic_info(record)
-        new_record_msg.update(new_dict)
-
         # Override record message and clear record args
         record.msg = json.dumps(new_record_msg)
-        record.args = {}
 
         return True
