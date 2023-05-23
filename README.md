@@ -25,7 +25,7 @@ Please avoid copy-pasting as no updates can be supplied that way.
 5. In **EVERY** file, the logger needs to be imported using `LOGGER = logging.getLogger(__name__)`
 
 ```python
-from python_logger import PythonLogger
+from python_json_log_formatter import PythonLogger
 import logging
 
 VERSION = "1.0.0 (2022/11/24)"
@@ -37,7 +37,7 @@ LOGGER = logging.getLogger(__name__)
 Optionally, it is also possible to change the log level:
 
 ```python
-from python_logger import PythonLogger
+from python_json_log_formatter import PythonLogger
 import logging
 
 VERSION = "1.0.0 (2022/11/24)"
