@@ -173,6 +173,10 @@ class ContextFilter(Filter):
         new_dict['lineno'] = record.lineno
         new_dict['pathname'] = record.pathname
 
+        # add log level
+        new_dict["levelno"] = record.levelno
+        new_dict["levelname"] = record.levelname
+
         # Add existing metadata to the new record message
         if isinstance(record.args, dict):
             for k, v in record.args.items():
