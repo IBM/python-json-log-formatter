@@ -31,6 +31,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 * The logger will set the `pipeline_status=failed` only if an error is critical, as regular errors must not mean a failure.
 
+### Fixed
+
+* Added missing bracket in log format string
+
 ## Python-Logger [3.1.0] - 2023-05-22
 
 ### Added
