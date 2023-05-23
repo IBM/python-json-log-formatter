@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
+## Python-Logger [3.2.0] - 2023-05-23
+
+### Changed
+
+* The logger will set the `pipeline_status=failed` only if an error is critical, as regular errors must not mean a failure.
+
 ## Python-Logger [3.1.0] - 2023-05-22
 
 ### Added

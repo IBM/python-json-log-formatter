@@ -35,7 +35,7 @@ from typing import ClassVar, Dict, Optional
 from python_json_log_formatter.context_filter import ContextFilter
 
 
-VERSION = "3.1.0"
+VERSION = "3.2.0"
 
 class PythonLogger:
     """This class wraps functions used for logging for an easier, direct access.

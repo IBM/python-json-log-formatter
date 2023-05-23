@@ -29,7 +29,7 @@ Author:
 from __future__ import annotations
 
 import json
-from logging import ERROR, LogRecord, Filter, WARNING, getLevelName, getLogger
+from logging import CRITICAL, ERROR, LogRecord, Filter, WARNING, getLevelName, getLogger
 from pathlib import Path
 import traceback
 from typing import Any, Dict, Mapping
@@ -243,7 +243,7 @@ class ContextFilter(Filter):
         new_dict: Dict[str, Any] = {}
         # Handle error logs
         # 40: Error, and higher (critical)
-        if record.levelno >= ERROR:
+        if record.levelno >= CRITICAL:
             new_dict['job_status'] = 'failed'
             new_dict['pipeline_status'] = 'failed'
 
