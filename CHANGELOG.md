@@ -23,8 +23,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-* The version string is now in a file named `_version.py`, similar to all other python projects
-  * Adjusted file paths and build method to this change
+* The version string is now in a file named `_version.py`, similar to other Python projects
+  * Adjusted file paths and build a method to this change
 
 ## Python-Logger [3.2.0] - 2023-05-23
 
