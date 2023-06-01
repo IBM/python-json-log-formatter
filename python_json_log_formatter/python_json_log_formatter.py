@@ -35,9 +35,7 @@ import re
 from typing import ClassVar, Dict, List, Optional
 
 from python_json_log_formatter.context_filter import ContextFilter
-
-
-VERSION = "3.2.0"
+from python_json_log_formatter._version import __version__
 
 class PythonLogger:
     """This class wraps functions used for logging for an easier, direct access.
@@ -106,6 +104,7 @@ class PythonLogger:
         if app:
             context_dict["app"] = app
         context_dict["version"] = version_constant
+        context_dict["logger_version"] = __version__
         cls.__context_filter = ContextFilter(context_dict, disable_log_formatting)
         handler.addFilter(cls.__context_filter)
         basicConfig(

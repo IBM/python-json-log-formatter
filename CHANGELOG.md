@@ -15,6 +15,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
+## Python-Logger [3.2.1] - 2023-06-01
+
+### Added
+
+* The logger now also logs the version of the logger itself.
+
+### Changed
+
+* The version string is now in a file named `_version.py`, similar to all other python projects
+  * Adjusted file paths and build method to this change
+
 ## Python-Logger [3.2.0] - 2023-05-23
 
 ### Added

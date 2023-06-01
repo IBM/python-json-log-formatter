@@ -1,12 +1,13 @@
 
 from logging import getLogger
 
-from python_json_log_formatter.python_json_log_formatter import PythonLogger, VERSION
+from python_json_log_formatter.python_json_log_formatter import PythonLogger
+from python_json_log_formatter._version import __version__
 
 if __name__ == '__main__':
 
     PythonLogger.setup_logger(
-        version_constant=VERSION,
+        version_constant=__version__,
         app="python_json_log_formatter"
     )
 
