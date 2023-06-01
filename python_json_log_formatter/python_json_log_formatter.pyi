@@ -1,4 +1,3 @@
-from python_json_log_formatter.context_filter import ContextFilter as ContextFilter
 from typing import Dict, List, Optional
 
 VERSION: str

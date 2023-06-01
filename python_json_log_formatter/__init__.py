@@ -26,6 +26,7 @@ Author:
  Niels Korschinsky
 """
 
-__all__ = ["PythonLogger", "VERSION"]
+__all__ = ["PythonLogger", "__version__"]
 
-from python_json_log_formatter.python_json_log_formatter import PythonLogger, VERSION
+from python_json_log_formatter.python_json_log_formatter import PythonLogger as PythonLogger
+from python_json_log_formatter._version import __version__ as __version__

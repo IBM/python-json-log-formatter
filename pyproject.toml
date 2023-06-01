@@ -23,7 +23,7 @@ dynamic = ["version"]
 "Bug Tracker" = "https://github.com/IBM/python-json-log-formatter/issues"
 
 [tool.setuptools.dynamic]
-version = {attr = "python_json_log_formatter.VERSION"}
+version = {attr = "python_json_log_formatter.__version__"}
 
 [tool.setuptools]
 packages = ["python_json_log_formatter"]
