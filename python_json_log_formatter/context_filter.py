@@ -292,23 +292,23 @@ class ContextFilter(Filter):
         """Combine message and contextual information into message argument of the record."""
 
         # start with the pre-set context
-        #new_record_msg: Dict[str, Any] = self.__context.copy()
+        new_record_msg: Dict[str, Any] = self.__context.copy()
 
-        #new_dict = self.__filter_imported_modules(record)
-        #new_record_msg.update(new_dict)
+        new_dict = self.__filter_imported_modules(record)
+        new_record_msg.update(new_dict)
 
-        #new_dict = self.__add_log_record_info(record)
-        #new_record_msg.update(new_dict)
+        new_dict = self.__add_log_record_info(record)
+        new_record_msg.update(new_dict)
 
-        #new_dict = self.__check_failed_pipeline_status(record)
-        #new_record_msg.update(new_dict)
+        new_dict = self.__check_failed_pipeline_status(record)
+        new_record_msg.update(new_dict)
 
-        #dumped_new_dict = json.dumps(new_record_msg)
-        #if not self.__disable_log_formatting:
+        dumped_new_dict = json.dumps(new_record_msg)
+        if not self.__disable_log_formatting:
             # Override record message and clear record args
-        #    record.msg = dumped_new_dict
-        #else:
+            record.msg = dumped_new_dict
+        else:
             # save it in new attribute, will not be shown.
-        #    record.log_formatting_message = dumped_new_dict
+            record.log_formatting_message = dumped_new_dict
 
         return True
