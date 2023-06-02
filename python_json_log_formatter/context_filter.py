@@ -179,21 +179,24 @@ class ContextFilter(Filter):
             for k, v in old_record.args.items():
                 new_record_dict[k] = v
 
+    def __add_available_exec_info(self, new_record_dict: Dict[str, Any], record: LogRecord):
+        message = new_record_dict['message']
 
-    def __add_context_info(self, new_record_dict: Dict[str, Any]) -> None:
-        # Add contextual information to the record message
-        for arg_name, value in self.__context.items():
-            new_record_dict[arg_name] = value
+        if record.exc_info:
 
-    def __add_available_exec_info(self, new_record_dict: Dict[str, Any], old_record: LogRecord):
-        if old_record.exc_info:
-            exc_type, exc_value, exc_traceback = old_record.exc_info
+            # get the individual parts
+            exc_type, exc_value, exc_traceback = record.exc_info
 
+            # only save the trace
             exc_info = ''.join(traceback.format_exception(exc_type, exc_value, exc_traceback))
-            new_record_dict['message'] = str(new_record_dict['message']) + '\n' + exc_info
 
+            # delete the info from the saved dict
+            new_record_dict.pop("exc_info", None)
             # Clear record.exc_info
-            old_record.exc_info = None
+            record.exc_info = None
+
+            # append it to the message to have it displayed as log message
+            new_record_dict['message'] = message + '\n' + exc_info
 
     def __check_is_imported_module(self, path_name: str) -> bool:
         work_dir = Path(getcwd())
@@ -269,14 +272,13 @@ class ContextFilter(Filter):
 
     def filter(self, record: LogRecord) -> bool:
         """Combine message and contextual information into message argument of the record."""
-        new_record_msg: Dict[str, Any] = {}
+        # start with the pre-set context
+        new_record_msg: Dict[str, Any] = self.__context.copy()
 
         new_dict = self.__filter_imported_modules(record)
         new_record_msg.update(new_dict)
 
         self.__add_existing_info(new_record_msg, record)
-
-        self.__add_context_info(new_record_msg)
 
         new_dict = self.__check_failed_pipeline_status(record)
         new_record_msg.update(new_dict)
