@@ -256,12 +256,16 @@ class ContextFilter(Filter):
 
         return new_dict
 
-    def __check_failed_pipeline_status(self, new_record_dict: Dict[str, Any], old_record: LogRecord):
+    def __check_failed_pipeline_status(self, record: LogRecord) -> Dict[str, Any]:
+
+        new_dict: Dict[str, Any] = {}
         # Handle error logs
         # 40: Error, and higher (critical)
-        if old_record.levelno >= 40:
-            new_record_dict['job_status'] = 'failed'
-            new_record_dict['pipeline_status'] = 'failed'
+        if record.levelno >= CRITICAL:
+            new_dict['job_status'] = 'failed'
+            new_dict['pipeline_status'] = 'failed'
+
+        return new_dict
 
     def filter(self, record: LogRecord) -> bool:
         """Combine message and contextual information into message argument of the record."""
@@ -274,13 +278,22 @@ class ContextFilter(Filter):
 
         self.__add_context_info(new_record_msg)
 
-        self.__check_failed_pipeline_status(new_record_msg, record)
+        new_dict = self.__check_failed_pipeline_status(record)
+        new_record_msg.update(new_dict)
 
         # Add exception info to log message
         self.__add_available_exec_info(new_record_msg, record)
 
         # Override record message and clear record args
-        record.msg = json.dumps(new_record_msg)
+        dumped_new_dict = json.dumps(new_record_msg)
+        if not self.__disable_log_formatting:
+            # Override record message and clear record args
+            record.msg = dumped_new_dict
+        else:
+            # save it in new attribute, will not be shown.
+            record.log_formatting_message = dumped_new_dict
+
+
         record.args = {}
 
         return True
