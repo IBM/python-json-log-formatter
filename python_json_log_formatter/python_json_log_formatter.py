@@ -87,30 +87,30 @@ class PythonLogger:
         """
 
         # check that the version string has the correct format
-        #version_match = re.fullmatch(
-        #        r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?(\s+\(\d{4}/\d{2}/\d{2}\))?$",
-        #        version_constant)
-        #if not version_match:
-        #    raise ValueError("Incorrect version format. Please use semantic versioning and prepend optionally '(yyyy/mm/dd)':https://semver.org/#semantic-versioning-specification-semver  https://ihateregex.io/expr/semver/")
+        version_match = re.fullmatch(
+                r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?(\s+\(\d{4}/\d{2}/\d{2}\))?$",
+                version_constant)
+        if not version_match:
+            raise ValueError("Incorrect version format. Please use semantic versioning and prepend optionally '(yyyy/mm/dd)':https://semver.org/#semantic-versioning-specification-semver  https://ihateregex.io/expr/semver/")
 
-        #if disable_log_formatting is None:
-        #    disable_log_formatting =  bool(strtobool(
-        #        getenv("DISABLE_LOG_FORMATTING", "False")
-        #        ))
+        if disable_log_formatting is None:
+            disable_log_formatting =  bool(strtobool(
+                getenv("DISABLE_LOG_FORMATTING", "False")
+                ))
 
-        #handler = StreamHandler()
+        handler = StreamHandler()
 
         context_dict = extra_context_dict or {}
         if app:
             context_dict["app"] = app
         context_dict["version"] = version_constant
-        #context_dict["logger_version"] = __version__
-        #cls.__context_filter = ContextFilter(context_dict, disable_log_formatting)
-        #handler.addFilter(cls.__context_filter)
+        context_dict["logger_version"] = __version__
+        cls.__context_filter = ContextFilter(context_dict, disable_log_formatting)
+        handler.addFilter(cls.__context_filter)
         basicConfig(
             level=logging_level,
             format="[%(asctime)s %(name)s] %(levelname)s: %(message)s",
-            #handlers=[handler]
+            handlers=[handler]
     )
 
     @classmethod
