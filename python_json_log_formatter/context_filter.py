@@ -32,7 +32,7 @@ import json
 from logging import LogRecord, Filter, WARNING, getLevelName, getLogger
 from pathlib import Path
 import traceback
-from typing import Any, Dict
+from typing import Any, Dict, List
 from os import getenv, getcwd
 
 LOGGER = getLogger(__name__)
@@ -42,6 +42,15 @@ class ContextFilter(Filter):
     This is a filter which transforms log lines with metadata into structured JSON log lines.
     These structured JSON log lines are automatically parsed and indexed by LogDNA.
     """
+
+    @property
+    def excluded_logging_context_keys(self) -> List[str]:
+        """Keys of the logging Record which should not be included automatically."""
+        return self.__excluded_logging_context_keys
+
+    @excluded_logging_context_keys.setter
+    def excluded_logging_context_keys(self, value: List[str]) -> None:
+        self.__excluded_logging_context_keys = value
 
     __job_retry_limit_env = "JOB_RETRY_LIMIT"
     __job_retry_count_env = "JOB_INDEX_RETRY_COUNT"
@@ -60,7 +69,7 @@ class ContextFilter(Filter):
             "HOSTNAME"
         ]
 
-    def __init__(self, context: Dict[str, str]) -> None:
+    def __init__(self, context: Dict[str, str], disable_log_formatting: bool = False) -> None:
         super().__init__()
         self.__context: Dict[str, str] = {}
         self.update_context(context)
