@@ -186,8 +186,14 @@ class ContextFilter(Filter):
         for key in self.__excluded_logging_context_keys:
             new_dict.pop(key, None)
 
+        # without specifying this level, the logging service cannot detect its level
+        # so this is super important
         new_dict["level"] = record.levelname
         new_dict["message"] = record.msg
+
+        # remove msg as it is saved in another name
+        # message is used in the formatting string
+        new_dict.pop("msg", None)
 
         # Add arguments individual to the new record message
         if isinstance(record.args, dict):

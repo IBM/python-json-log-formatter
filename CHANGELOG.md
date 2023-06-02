@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 * Wraps the whole `filter` method in a try-catch block
   * Avoid issues stopping the program due to a logger issue
 
+### Fixed
+
+* Removed `msg` attribute as it is a duplicate of `message`
+
 ## Python-Logger [3.2.2] - 2023-06-02
 
 ### Added
