@@ -79,8 +79,8 @@ class PythonLogger:
         if app:
             context_dict["app"] = app
         context_dict["version"] = version_constant
-        cls.__context_filter = ContextFilter(context_dict)
-        handler.addFilter(cls.__context_filter)
+        #cls.__context_filter = ContextFilter(context_dict)
+        #handler.addFilter(cls.__context_filter)
         basicConfig(
             level=logging_level,
             format="[%(asctime)s %(name)s] %(levelname)s: %(message)s",
