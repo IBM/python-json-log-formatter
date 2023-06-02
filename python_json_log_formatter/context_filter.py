@@ -195,49 +195,66 @@ class ContextFilter(Filter):
             # Clear record.exc_info
             old_record.exc_info = None
 
-    def __filter_imported_modules(self, new_record_dict: Dict[str, Any], record: LogRecord):
+    def __check_is_imported_module(self, path_name: str) -> bool:
+        work_dir = Path(getcwd())
+        log_path = Path(path_name)
+
+        # from python 3.9 the main module should always be absolute, but sometimes it is not somehow.
+        # make sure the path is absolute
+        if not log_path.is_absolute():
+            log_path = log_path.resolve()
+
+        # if the module is located within the work dir it is actually code from this program
+        # other code is installed directly within the /opt/app-root/lib64/python3.9/site-packages/
+        if not log_path.is_relative_to(work_dir):
+            return True
+
+        # also verify it is not inside the venv dir
+        if "venv" in path_name:
+            return True
+
+        return False
+
+    def __filter_imported_modules(self, record: LogRecord) -> Dict[str, Any]:
         """Filters errors and critical failures from dependencies and sets their level to max warning.
+
+        Will change the level of the record via side effects if filtered.
 
         Args:
             old_record (LogRecord): the log record being filtered.
         """
+
+        new_dict: Dict[str, Any] = {}
+
         try:
-            # debug, info and warning can stay
-            if record.levelno < 40:
-                return
+            # debug, info and warning can stay in any case
+            if record.levelno < ERROR:
+                return new_dict
 
+            # this is not a imported module, leave it as it is
+            if not self.__check_is_imported_module(record.pathname):
+                return new_dict
 
-            work_dir = Path(getcwd())
-            log_path = Path(record.pathname)
-
-            # from python 3.9 the main module should always be absolute, but sometimes it is not somehow.
-            # make sure the path is absolute
-            if not log_path.is_absolute():
-                log_path = log_path.resolve()
-
-            # if the module is located within the work dir it is actually code from this program
-            # other code is installed directly within the /opt/app-root/lib64/python3.9/site-packages/
-            if log_path.is_relative_to(work_dir):
-
-                # also verify it is not inside the venv dir
-                if "venv" not in record.pathname:
-                    # this is module code which should be able to send error/critical messages
-                    return
-
-            # now, the code is for sure from a requirement/sub-module and thus should be changed
+            ###
+            # the code is for sure from a requirement/sub-module and thus should be changed
+            ###
 
             # save the old level
-            new_record_dict["original_levelno"] = record.levelno
-            new_record_dict["original_levelname"] = record.levelname
+            new_dict["original_levelno"] = record.levelno
+            new_dict["original_levelname"] = record.levelname
 
             # set all error/critical to warning
             record.levelno = WARNING
             record.levelname = getLevelName(WARNING)
-
-            new_record_dict["filter_imported_modules"] = "true"
+            # update possible already saved keys
+            new_dict["levelno"] = record.levelno
+            new_dict["levelname"] = record.levelname
+            new_dict["filter_imported_modules"] = "Filtered"
 
         except Exception as ex:
-            new_record_dict["filter_imported_modules"] = "Failed: " + str(ex)
+            new_dict["filter_imported_modules"] = "Failed: " + str(ex)
+
+        return new_dict
 
     def __check_failed_pipeline_status(self, new_record_dict: Dict[str, Any], old_record: LogRecord):
         # Handle error logs
@@ -250,7 +267,9 @@ class ContextFilter(Filter):
         """Combine message and contextual information into message argument of the record."""
         new_record_msg: Dict[str, Any] = {}
 
-        self.__filter_imported_modules(new_record_msg, record)
+        new_dict = self.__filter_imported_modules(record)
+        new_record_msg.update(new_dict)
+
         self.__add_existing_info(new_record_msg, record)
 
         self.__add_context_info(new_record_msg)
