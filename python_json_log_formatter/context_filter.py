@@ -30,11 +30,9 @@ from __future__ import annotations
 
 import json
 from logging import CRITICAL, ERROR, LogRecord, Filter, WARNING, Logger, getLevelName, getLogger
-from logging import LogRecord, Filter, WARNING, getLevelName, getLogger
 from pathlib import Path
 import traceback
 from typing import Any, Dict, List, Mapping
-from typing import Any, Dict, List
 from os import getenv, getcwd
 
 LOGGER: Logger = getLogger(__name__)
@@ -48,13 +46,11 @@ class ContextFilter(Filter):
     __job_retry_limit_env = "JOB_RETRY_LIMIT"
     """ENV-Key of the retry limit per job, name defined by Code Engine"""
 
-    __job_retry_limit_env = "JOB_RETRY_LIMIT"
     __job_retry_count_env = "JOB_INDEX_RETRY_COUNT"
+    """ENV-Key of the current re-try count per job, name defined by Code Engine"""
 
     __job_remaining_retries = "job_remaining_retries"
     """ENV-Key of the current remaining job-retries, calculated during filter option, name defined here by developer."""
-    __job_retry_limit_env = "JOB_RETRY_LIMIT"
-    __job_retry_count_env = "JOB_INDEX_RETRY_COUNT"
 
     __included_env_vars = [
             "ENVIRONMENT",
@@ -70,9 +66,13 @@ class ContextFilter(Filter):
             "HOSTNAME",
             "BRANCH_NAME",
             "TARGET_BRANCH_NAME"
-            "HOSTNAME"
         ]
     """Keys of the environment which should be included by default"""
+
+    __excluded_logging_context_keys: List[str] = [
+
+    ]
+    """Keys of the logging Record which should not be included automatically."""
 
     @property
     def excluded_logging_context_keys(self) -> List[str]:
@@ -85,9 +85,9 @@ class ContextFilter(Filter):
 
     def __init__(self, context: Dict[str, str], disable_log_formatting: bool = False) -> None:
         super().__init__()
+        self.__disable_log_formatting = disable_log_formatting
         self.__context: Dict[str, str] = {}
         self.update_context(context)
-        self.__disable_log_formatting = disable_log_formatting
 
     def __add_selected_env_vars_to_context(self, context_dict: Mapping[str, str]) -> Dict[str, Any]:
         """Creates a union of the existing context data and included environment variables.
