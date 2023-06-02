@@ -34,7 +34,6 @@ from os import getenv
 import re
 from typing import ClassVar, Dict, List, Optional
 
-from python_json_log_formatter.context_filter import ContextFilter
 from python_json_log_formatter._version import __version__
 
 class PythonLogger:
@@ -48,16 +47,8 @@ class PythonLogger:
         ValueError: _description_
     """
 
-    __context_filter: ClassVar[ContextFilter]
 
-    @property
-    def excluded_logging_context_keys(self) -> List[str]:
-        """Keys of the logging Record which should not be included automatically."""
-        return self.__context_filter.excluded_logging_context_keys
 
-    @excluded_logging_context_keys.setter
-    def excluded_logging_context_keys(self, value: List[str]) -> None:
-        self.__context_filter.excluded_logging_context_keys = value
 
     @classmethod
     def setup_logger(cls,
@@ -93,11 +84,6 @@ class PythonLogger:
         if not version_match:
             raise ValueError("Incorrect version format. Please use semantic versioning and prepend optionally '(yyyy/mm/dd)':https://semver.org/#semantic-versioning-specification-semver  https://ihateregex.io/expr/semver/")
 
-        if disable_log_formatting is None:
-            disable_log_formatting =  bool(strtobool(
-                getenv("DISABLE_LOG_FORMATTING", "False")
-                ))
-
         handler = StreamHandler()
 
         context_dict = extra_context_dict or {}
@@ -105,22 +91,8 @@ class PythonLogger:
             context_dict["app"] = app
         context_dict["version"] = version_constant
         context_dict["logger_version"] = __version__
-        cls.__context_filter = ContextFilter(context_dict, disable_log_formatting)
-        handler.addFilter(cls.__context_filter)
         basicConfig(
             level=logging_level,
-            #format="[%(asctime)s %(name)s] %(levelname)s: %(message)s",
+            format="[%(asctime)s %(name)s] %(levelname)s: %(message)s",
             handlers=[handler]
     )
-
-    @classmethod
-    def update_context(cls, context: Dict[str, str]) -> None:
-        """Updates additional context information added to each log line.
-
-        Will update the existing context with the given one, overwriting existing keys.
-        Existing keys without a new match will not be deleted
-
-        Args:
-            context (Dict[str, str]): context information to be included in each log line
-        """
-        cls.__context_filter.update_context(context)
