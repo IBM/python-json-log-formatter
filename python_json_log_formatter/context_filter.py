@@ -69,11 +69,6 @@ class ContextFilter(Filter):
         ]
     """Keys of the environment which should be included by default"""
 
-    __excluded_logging_context_keys: List[str] = [
-
-    ]
-    """Keys of the logging Record which should not be included automatically."""
-
     @property
     def excluded_logging_context_keys(self) -> List[str]:
         """Keys of the logging Record which should not be included automatically."""
@@ -82,6 +77,11 @@ class ContextFilter(Filter):
     @excluded_logging_context_keys.setter
     def excluded_logging_context_keys(self, value: List[str]) -> None:
         self.__excluded_logging_context_keys = value
+
+    __excluded_logging_context_keys: List[str] = [
+
+    ]
+    """Keys of the logging Record which should not be included automatically."""
 
     def __init__(self, context: Dict[str, str], disable_log_formatting: bool = False) -> None:
         super().__init__()
@@ -168,13 +168,15 @@ class ContextFilter(Filter):
         self.__context.update(new_dict)
 
     def __add_log_record_info(self, record: LogRecord) -> Dict[str, Any]:
-        """Extracts log record information into a logging dict context.
+        """Extracts log record information into a new logging dict context.
 
         Used for transferring certain required information into the new logging context to avoid loosing this data.
 
         Args:
-            new_record_dict (Dict[str, Any]): The new context which will receive the existing data, overwriting existing entries.
-            old_record (LogRecord): old context of the log
+            record (LogRecord): the log record which contents will be transferred
+
+        Returns:
+            Dict[str, Any]: Dict with context information to be merged into other context information
         """
 
         # add all available attributes of the record
@@ -199,6 +201,16 @@ class ContextFilter(Filter):
         return new_dict
 
     def __add_available_exec_info(self, new_record_dict: Dict[str, Any], record: LogRecord):
+        """Updates the provided context information with exc_information from the log record.
+
+        Will remove the exc_info from the record.
+        Updates the message of the context dict.
+
+        Args:
+            new_record_dict (Dict[str, Any]): Context dict with existing message and other information
+            record (LogRecord): LogRecord with possible exc_info field
+        """
+
         message = new_record_dict['message']
 
         if record.exc_info:
@@ -291,6 +303,7 @@ class ContextFilter(Filter):
 
     def filter(self, record: LogRecord) -> bool:
         """Combine message and contextual information into message argument of the record."""
+
         # start with the pre-set context
         new_record_msg: Dict[str, Any] = self.__context.copy()
 
@@ -314,8 +327,5 @@ class ContextFilter(Filter):
         else:
             # save it in new attribute, will not be shown.
             record.log_formatting_message = dumped_new_dict
-
-
-        record.args = {}
 
         return True
