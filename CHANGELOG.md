@@ -15,6 +15,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
+## Python-Logger [3.2.2] - 2023-06-01
+
+### Added
+
+* Method docs
+* Dockerfile for testing
+  * Added a `.dockerignore` file
+*
+
+### Changed
+
+* Moved the code to add the exc_info into an individual method
+* renamed private method `__add_env_variables` to `__add_selected_env_vars_to_context`
+
+### Fixed
+
+* Log levels show up again in the logging analyzer tool
+  * added `new_dict["level"] = record.levelname` to the log output
+
 ## Python-Logger [3.2.1] - 2023-06-01
 
 ### Added
