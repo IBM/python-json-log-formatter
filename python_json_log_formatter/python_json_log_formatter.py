@@ -93,6 +93,6 @@ class PythonLogger:
         context_dict["logger_version"] = __version__
         basicConfig(
             level=logging_level,
-            format="[%(asctime)s %(name)s] %(levelname)s: %(message)s END OF MESSAGE",
+            format="%(asctime)s %(name)s] %(levelname)s: %(message)s END OF MESSAGE",
             handlers=[handler]
     )
