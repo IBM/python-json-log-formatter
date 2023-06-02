@@ -185,6 +185,7 @@ class ContextFilter(Filter):
             new_dict.pop(key, None)
 
         new_dict["level"] = record.levelname
+        new_dict["message"] = record.msg
 
         # Add arguments individual to the new record message
         if isinstance(record.args, dict):
