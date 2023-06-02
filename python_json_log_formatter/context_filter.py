@@ -29,13 +29,15 @@ Author:
 from __future__ import annotations
 
 import json
+from logging import CRITICAL, ERROR, LogRecord, Filter, WARNING, Logger, getLevelName, getLogger
 from logging import LogRecord, Filter, WARNING, getLevelName, getLogger
 from pathlib import Path
 import traceback
+from typing import Any, Dict, List, Mapping
 from typing import Any, Dict, List
 from os import getenv, getcwd
 
-LOGGER = getLogger(__name__)
+LOGGER: Logger = getLogger(__name__)
 
 class ContextFilter(Filter):
     """
@@ -43,15 +45,14 @@ class ContextFilter(Filter):
     These structured JSON log lines are automatically parsed and indexed by LogDNA.
     """
 
-    @property
-    def excluded_logging_context_keys(self) -> List[str]:
-        """Keys of the logging Record which should not be included automatically."""
-        return self.__excluded_logging_context_keys
+    __job_retry_limit_env = "JOB_RETRY_LIMIT"
+    """ENV-Key of the retry limit per job, name defined by Code Engine"""
 
-    @excluded_logging_context_keys.setter
-    def excluded_logging_context_keys(self, value: List[str]) -> None:
-        self.__excluded_logging_context_keys = value
+    __job_retry_limit_env = "JOB_RETRY_LIMIT"
+    __job_retry_count_env = "JOB_INDEX_RETRY_COUNT"
 
+    __job_remaining_retries = "job_remaining_retries"
+    """ENV-Key of the current remaining job-retries, calculated during filter option, name defined here by developer."""
     __job_retry_limit_env = "JOB_RETRY_LIMIT"
     __job_retry_count_env = "JOB_INDEX_RETRY_COUNT"
 
@@ -66,15 +67,45 @@ class ContextFilter(Filter):
             "CE_JOB",
             "CE_JOBRUN",
             "CE_SUBDOMAIN",
+            "HOSTNAME",
+            "BRANCH_NAME",
+            "TARGET_BRANCH_NAME"
             "HOSTNAME"
         ]
+    """Keys of the environment which should be included by default"""
+
+    @property
+    def excluded_logging_context_keys(self) -> List[str]:
+        """Keys of the logging Record which should not be included automatically."""
+        return self.__excluded_logging_context_keys
+
+    @excluded_logging_context_keys.setter
+    def excluded_logging_context_keys(self, value: List[str]) -> None:
+        self.__excluded_logging_context_keys = value
 
     def __init__(self, context: Dict[str, str], disable_log_formatting: bool = False) -> None:
         super().__init__()
         self.__context: Dict[str, str] = {}
         self.update_context(context)
+        self.__disable_log_formatting = disable_log_formatting
 
-    def __add_env_to_context(self, context_dict: Dict[str, str]):
+    def __add_selected_env_vars_to_context(self, context_dict: Mapping[str, str]) -> Dict[str, Any]:
+        """Creates a union of the existing context data and included environment variables.
+
+        The result will be a new dictionary containing both keys,
+        If a key exists in both the context and the env, the context has higher priority.
+        A warning will be issued.
+
+        Args:
+            context_dict (Mapping[str, str]): Current logging context
+
+        Returns:
+            Dict[str, Any]: Merged Dict of logging context and certain env variables
+        """
+
+        # create a copy of the immutable object
+        new_dict: Dict[str, Any] = dict(context_dict)
+
         for env_key in self.__included_env_vars:
             env_value = getenv(env_key, None)
 
@@ -82,11 +113,23 @@ class ContextFilter(Filter):
                 if env_key in context_dict:
                     # skip pre-set keys, as user input is more important than env vars
                     # no real option of logging?
-                    LOGGER.warning(f"Context key {env_key} set by both user and automatic env detection, using user one.")
+                    LOGGER.warning(f"Context key {env_key} set by both user and automatic env detection, skipping env value.")
                     continue
-                context_dict[env_key] = env_value
+                new_dict[env_key] = env_value
+        return new_dict
 
-    def __add_remaining_job_retries(self, context_dict: Dict[str, str]):
+    def __calculate_remaining_job_retries(self) -> Dict[str, Any]:
+        """Calculates the remaining job retries count for this job and adds them to the logging context.
+
+        Requires the current retry count and the maximum limit saved in the environment.
+        If not available, will log an warning.
+
+        Saves the remaining retries count into the key `job_remaining_retries`.
+
+        Returns:
+            Dict[str, Any]: logging context containing only the remaining retries
+        """
+        new_dict: Dict[str, Any] = {}
         try:
 
             job_retry_count_str = getenv(self.__job_retry_count_env, None)
@@ -96,19 +139,33 @@ class ContextFilter(Filter):
                 job_retry_count_max = int(job_retry_count_max_str)
                 remaining_retries = str(job_retry_count_max - job_retry_count)
 
-                context_dict["job_remaining_retries"] = remaining_retries
+                new_dict[self.__job_remaining_retries] = remaining_retries
         except Exception as ex:
             # impossible to calculate
             LOGGER.warning("Impossible to calculate remaining job retries due to error", exc_info=ex)
 
+        return new_dict
 
-    def update_context(self, new_context_dict: Dict[str, str]) -> None:
+    def update_context(self, new_context_dict: Mapping[str, str]) -> None:
+        """Updates the static saved context with new logging context, applying additional data on the way.
 
-        self.__add_env_to_context(new_context_dict)
+        The static context will be updated with the env variables and the calculated remaining job retries if available.
+        Includes environment variables, where keys from `new_context_dict` take precedence, overwriting env vars.
+        Will issue warnings if something calculated is not available or duplicate keys exists.
+        Existing remaining job retries will be overwritten.
 
-        self.__add_remaining_job_retries(new_context_dict)
+        This static context will then applied onto every logging line.
 
-        self.__context.update(new_context_dict)
+        Args:
+            context (Dict[str, str]): New logging context to be applied as static context
+        """
+
+        new_dict = self.__add_selected_env_vars_to_context(new_context_dict)
+
+        job_retries_context = self.__calculate_remaining_job_retries()
+        new_dict.update(job_retries_context)
+
+        self.__context.update(new_dict)
 
     def __add_existing_info(self, new_record_dict: Dict[str, Any], old_record: LogRecord):
         # Append line number, path and level to log message
