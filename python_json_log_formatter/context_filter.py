@@ -89,7 +89,7 @@ class ContextFilter(Filter):
         self.__context: Dict[str, str] = {}
         self.update_context(context)
 
-    def __add_env_variables(self, context_dict: Mapping[str, str]) -> Dict[str, Any]:
+    def __add_selected_env_vars_to_context(self, context_dict: Mapping[str, str]) -> Dict[str, Any]:
         """Creates a union of the existing context data and included environment variables.
 
         The result will be a new dictionary containing both keys,
@@ -160,7 +160,7 @@ class ContextFilter(Filter):
             context (Dict[str, str]): New logging context to be applied as static context
         """
 
-        new_dict = self.__add_env_variables(new_context_dict)
+        new_dict = self.__add_selected_env_vars_to_context(new_context_dict)
 
         job_retries_context = self.__calculate_remaining_job_retries()
         new_dict.update(job_retries_context)
@@ -168,13 +168,15 @@ class ContextFilter(Filter):
         self.__context.update(new_dict)
 
     def __add_log_record_info(self, record: LogRecord) -> Dict[str, Any]:
-        """Extracts log record information into a logging dict context.
+        """Extracts log record information into a new logging dict context.
 
         Used for transferring certain required information into the new logging context to avoid loosing this data.
 
         Args:
-            new_record_dict (Dict[str, Any]): The new context which will receive the existing data, overwriting existing entries.
-            old_record (LogRecord): old context of the log
+            record (LogRecord): the log record which contents will be transferred
+
+        Returns:
+            Dict[str, Any]: Dict with context information to be merged into other context information
         """
 
         # add all available attributes of the record
@@ -184,26 +186,8 @@ class ContextFilter(Filter):
         for key in self.__excluded_logging_context_keys:
             new_dict.pop(key, None)
 
-        # add exec info to the message if available
-        message = record.msg
-        if record.exc_info:
-
-            # get the individual parts
-            exc_type, exc_value, exc_traceback = record.exc_info
-
-            # only save the trace
-            exc_info = ''.join(traceback.format_exception(exc_type, exc_value, exc_traceback))
-
-            # delete the info from the saved dict
-            new_dict.pop("exc_info")
-
-            # append it to the message to have it displayed as log message
-            message = message + '\n' + exc_info
-
-        # remove msg, unsure whether the logging tool parser requires msg or message.
-        new_dict.pop("msg", None)
-        new_dict['message'] = message
-
+        new_dict["level"] = record.levelname
+        new_dict["message"] = record.msg
 
         # Add arguments individual to the new record message
         if isinstance(record.args, dict):
@@ -215,6 +199,35 @@ class ContextFilter(Filter):
             new_dict.pop("args", None)
 
         return new_dict
+
+    def __add_available_exec_info(self, new_record_dict: Dict[str, Any], record: LogRecord):
+        """Updates the provided context information with exc_information from the log record.
+
+        Will remove the exc_info from the record.
+        Updates the message of the context dict.
+
+        Args:
+            new_record_dict (Dict[str, Any]): Context dict with existing message and other information
+            record (LogRecord): LogRecord with possible exc_info field
+        """
+
+        message = new_record_dict['message']
+
+        if record.exc_info:
+
+            # get the individual parts
+            exc_type, exc_value, exc_traceback = record.exc_info
+
+            # only save the trace
+            exc_info = ''.join(traceback.format_exception(exc_type, exc_value, exc_traceback))
+
+            # delete the info from the saved dict
+            new_record_dict.pop("exc_info", None)
+            # Clear record.exc_info
+            record.exc_info = None
+
+            # append it to the message to have it displayed as log message
+            new_record_dict['message'] = message + '\n' + exc_info
 
     def __check_is_imported_module(self, path_name: str) -> bool:
         work_dir = Path(getcwd())
@@ -303,6 +316,10 @@ class ContextFilter(Filter):
         new_dict = self.__check_failed_pipeline_status(record)
         new_record_msg.update(new_dict)
 
+        # Add exception info to log message
+        self.__add_available_exec_info(new_record_msg, record)
+
+        # Override record message and clear record args
         dumped_new_dict = json.dumps(new_record_msg)
         if not self.__disable_log_formatting:
             # Override record message and clear record args
