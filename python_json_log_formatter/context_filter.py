@@ -210,7 +210,9 @@ class ContextFilter(Filter):
             for k, v in record.args.items():
                 new_dict[k] = v
             # set them to empty, as already included
-            record.args = {}
+
+            # TODO(nk) removed this
+            #record.args = {}
             # remove it from the new_dict, as they are saved individually
             new_dict.pop("args", None)
 
