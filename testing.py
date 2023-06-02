@@ -25,6 +25,7 @@ if __name__ == '__main__':
         }
     )
 
+
     LOGGER.error("error-test", extra={"test2": "testval_2"})
     try:
         raise ValueError("testError")
