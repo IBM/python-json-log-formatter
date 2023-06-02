@@ -201,7 +201,7 @@ class ContextFilter(Filter):
             message = message + '\n' + exc_info
 
         # remove msg, unsure whether the logging tool parser requires msg or message.
-        new_dict.pop("msg", None)
+        #new_dict.pop("msg", None)
         new_dict['message'] = message
 
 
