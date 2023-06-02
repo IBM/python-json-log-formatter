@@ -303,29 +303,34 @@ class ContextFilter(Filter):
 
     def filter(self, record: LogRecord) -> bool:
         """Combine message and contextual information into message argument of the record."""
+        try:
 
-        # start with the pre-set context
-        new_record_msg: Dict[str, Any] = self.__context.copy()
+            # start with the pre-set context
+            new_record_msg: Dict[str, Any] = self.__context.copy()
 
-        new_dict = self.__filter_imported_modules(record)
-        new_record_msg.update(new_dict)
+            new_dict = self.__filter_imported_modules(record)
+            new_record_msg.update(new_dict)
 
-        new_dict = self.__add_log_record_info(record)
-        new_record_msg.update(new_dict)
+            new_dict = self.__add_log_record_info(record)
+            new_record_msg.update(new_dict)
 
-        new_dict = self.__check_failed_pipeline_status(record)
-        new_record_msg.update(new_dict)
+            new_dict = self.__check_failed_pipeline_status(record)
+            new_record_msg.update(new_dict)
 
-        # Add exception info to log message
-        self.__add_available_exec_info(new_record_msg, record)
+            # Add exception info to log message
+            self.__add_available_exec_info(new_record_msg, record)
 
-        # Override record message and clear record args
-        dumped_new_dict = json.dumps(new_record_msg)
-        if not self.__disable_log_formatting:
             # Override record message and clear record args
-            record.msg = dumped_new_dict
-        else:
-            # save it in new attribute, will not be shown.
-            record.log_formatting_message = dumped_new_dict
+            dumped_new_dict = json.dumps(new_record_msg)
+            if not self.__disable_log_formatting:
+                # Override record message and clear record args
+                record.msg = dumped_new_dict
+            else:
+                # save it in new attribute, will not be shown.
+                record.log_formatting_message = dumped_new_dict
+
+        except Exception:
+            # ensure it does not stop the program if something does wrong
+            return True
 
         return True

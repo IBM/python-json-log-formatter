@@ -15,7 +15,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
-## Python-Logger [3.2.2] - 2023-06-01
+## Python-Logger [3.2.3] - 2023-06-02
+
+### Changed
+
+* Wraps the whole `filter` method in a try-catch block
+  * Avoid issues stopping the program due to a logger issue
+
+## Python-Logger [3.2.2] - 2023-06-02
 
 ### Added
 
