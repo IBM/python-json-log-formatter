@@ -18,6 +18,12 @@ if __name__ == '__main__':
     LOGGER.info("test", extra={"test": "testval1"})
     LOGGER.info("test", {"test": "testval1"})
 
+    PythonLogger.update_context(
+        {
+            "SOURCE_BRANCH": "test",
+            "TARGET_BRANCH": "test2"
+        }
+    )
 
     LOGGER.error("error-test", extra={"test2": "testval_2"})
     try:
