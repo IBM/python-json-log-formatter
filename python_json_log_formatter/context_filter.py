@@ -167,17 +167,35 @@ class ContextFilter(Filter):
 
         self.__context.update(new_dict)
 
-    def __add_existing_info(self, new_record_dict: Dict[str, Any], old_record: LogRecord):
-        # Append line number, path and level to log message
-        new_record_dict['message'] = old_record.msg
-        new_record_dict['lineno'] = old_record.lineno
-        new_record_dict['pathname'] = old_record.pathname
-        new_record_dict['level'] = old_record.levelname
+    def __add_log_record_info(self, record: LogRecord) -> Dict[str, Any]:
+        """Extracts log record information into a logging dict context.
 
-        # Add existing metadata to the new record message
-        if isinstance(old_record.args, dict):
-            for k, v in old_record.args.items():
-                new_record_dict[k] = v
+        Used for transferring certain required information into the new logging context to avoid loosing this data.
+
+        Args:
+            new_record_dict (Dict[str, Any]): The new context which will receive the existing data, overwriting existing entries.
+            old_record (LogRecord): old context of the log
+        """
+
+        # add all available attributes of the record
+        # copy to ensure to not edit the record itself
+        new_dict: Dict[str, Any] = record.__dict__.copy()
+
+        for key in self.__excluded_logging_context_keys:
+            new_dict.pop(key, None)
+
+        new_dict["level"] = record.levelname
+
+        # Add arguments individual to the new record message
+        if isinstance(record.args, dict):
+            for k, v in record.args.items():
+                new_dict[k] = v
+            # set them to empty, as already included
+            record.args = {}
+            # remove it from the new_dict, as they are saved individually
+            new_dict.pop("args", None)
+
+        return new_dict
 
     def __add_available_exec_info(self, new_record_dict: Dict[str, Any], record: LogRecord):
         message = new_record_dict['message']
@@ -278,7 +296,8 @@ class ContextFilter(Filter):
         new_dict = self.__filter_imported_modules(record)
         new_record_msg.update(new_dict)
 
-        self.__add_existing_info(new_record_msg, record)
+        new_dict = self.__add_log_record_info(record)
+        new_record_msg.update(new_dict)
 
         new_dict = self.__check_failed_pipeline_status(record)
         new_record_msg.update(new_dict)

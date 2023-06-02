@@ -1,5 +1,7 @@
-from logging import Filter, LogRecord
-from typing import Dict, List
+from logging import Filter, LogRecord, Logger
+from typing import Dict, List, Mapping
+
+LOGGER: Logger
 
 class ContextFilter(Filter):
     @property
@@ -7,5 +9,5 @@ class ContextFilter(Filter):
     @excluded_logging_context_keys.setter
     def excluded_logging_context_keys(self, value: List[str]) -> None: ...
     def __init__(self, context: Dict[str, str], disable_log_formatting: bool = ...) -> None: ...
-    def update_context(self, context: Dict[str, str]) -> None: ...
+    def update_context(self, new_context_dict: Mapping[str, str]) -> None: ...
     def filter(self, record: LogRecord) -> bool: ...
