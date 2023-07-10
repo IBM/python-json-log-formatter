@@ -32,7 +32,7 @@ import json
 from logging import CRITICAL, ERROR, LogRecord, Filter, WARNING, Logger, getLevelName, getLogger
 from pathlib import Path
 import traceback
-from typing import Any, Dict, List, Mapping
+from typing import Any, ClassVar, Dict, List, Mapping
 from os import getenv, getcwd
 
 LOGGER: Logger = getLogger(__name__)
@@ -42,6 +42,13 @@ class ContextFilter(Filter):
     This is a filter which transforms log lines with metadata into structured JSON log lines.
     These structured JSON log lines are automatically parsed and indexed by LogDNA.
     """
+
+    @property
+    def message_key(self):
+        return self.__message_key
+
+    __message_key: ClassVar[str] = "msg"
+    """name of the key under which the msg will be saved"""
 
     __job_retry_limit_env = "JOB_RETRY_LIMIT"
     """ENV-Key of the retry limit per job, name defined by Code Engine"""
@@ -189,18 +196,22 @@ class ContextFilter(Filter):
         # without specifying this level, the logging service cannot detect its level
         # so this is super important
         new_dict["level"] = record.levelname
-        new_dict["message"] = record.msg
+        new_dict[self.__message_key] = record.msg
 
-        # remove msg as it is saved in another name
-        # message is used in the formatting string
-        new_dict.pop("msg", None)
+        if self.__message_key != "msg":
+            # remove msg as it is saved in another name
+            # message is used in the formatting string
+            new_dict.pop("msg", None)
 
         # Add arguments individual to the new record message
         if isinstance(record.args, dict):
             for k, v in record.args.items():
                 new_dict[k] = v
+
             # set them to empty, as already included
-            record.args = {}
+            #record.args = {}
+            # Edit: do not remove it, as the record should be left as intact as possible
+
             # remove it from the new_dict, as they are saved individually
             new_dict.pop("args", None)
 
@@ -217,7 +228,7 @@ class ContextFilter(Filter):
             record (LogRecord): LogRecord with possible exc_info field
         """
 
-        message = new_record_dict['message']
+        message = new_record_dict[self.__message_key]
 
         if record.exc_info:
 
@@ -229,11 +240,13 @@ class ContextFilter(Filter):
 
             # delete the info from the saved dict
             new_record_dict.pop("exc_info", None)
+
             # Clear record.exc_info
-            record.exc_info = None
+            #record.exc_info = None
+            # Edit: do not remove it, as the record should be left as intact as possible
 
             # append it to the message to have it displayed as log message
-            new_record_dict['message'] = message + '\n' + exc_info
+            new_record_dict[self.__message_key] = message + '\n' + exc_info
 
     def __check_is_imported_module(self, path_name: str) -> bool:
         work_dir = Path(getcwd())

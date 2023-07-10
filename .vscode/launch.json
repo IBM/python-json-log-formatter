@@ -12,7 +12,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "env": {
-                "DISABLE_LOG_FORMATTING": "True"
+                //"DISABLE_LOG_FORMATTING": "True"
             },
             "args": [
 
