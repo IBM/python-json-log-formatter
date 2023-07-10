@@ -15,9 +15,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
+## Python-Logger [3.2.5] - 2023-07-10
+
+### Changed
+
+* Changing `msg` back to `message` to allow the logging tool to detect it
+
 ## Python-Logger [3.2.4] - 2023-07-10
 
-## Changed
+### Changed
 
 * Trying to modify the original record as few as possible, as that can have unintended side consequences
   * No longer removes the record args or exec info from it

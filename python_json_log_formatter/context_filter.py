@@ -47,7 +47,7 @@ class ContextFilter(Filter):
     def message_key(self):
         return self.__message_key
 
-    __message_key: ClassVar[str] = "msg"
+    __message_key: ClassVar[str] = "message"
     """name of the key under which the msg will be saved"""
 
     __job_retry_limit_env = "JOB_RETRY_LIMIT"
