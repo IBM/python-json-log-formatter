@@ -109,7 +109,7 @@ class PythonLogger:
         handler.addFilter(cls.__context_filter)
         basicConfig(
             level=logging_level,
-            format=f"[%(asctime)s %(name)s] %(levelname)s: %({cls.__context_filter.message_key})s",
+            format="[%(asctime)s %(name)s] %(levelname)s: %(message)s",
             handlers=[handler]
     )
 

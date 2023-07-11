@@ -15,33 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
-## Python-Logger [3.2.5] - 2023-07-10
-
-### Changed
-
-* Changing `msg` back to `message` to allow the logging tool to detect it
-
-## Python-Logger [3.2.4] - 2023-07-10
-
-### Changed
-
-* Trying to modify the original record as few as possible, as that can have unintended side consequences
-  * No longer removes the record args or exec info from it
-* The place where the message is saved is changed from `message` to `msg`, to stay in the same naming as the original record would
-  * Can be changed via a central variable, changing it everywhere
-
-## Python-Logger [3.2.3] - 2023-06-02
-
-### Changed
-
-* Wraps the whole `filter` method in a try-catch block
-  * Avoid issues stopping the program due to a logger issue
-
-### Fixed
-
-* Removed `msg` attribute as it is a duplicate of `message`
-
-## Python-Logger [3.2.2] - 2023-06-02
+## Python-Logger [3.2.2] - 2023-06-01
 
 ### Added
 

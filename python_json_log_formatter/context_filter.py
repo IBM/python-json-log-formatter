@@ -32,7 +32,7 @@ import json
 from logging import CRITICAL, ERROR, LogRecord, Filter, WARNING, Logger, getLevelName, getLogger
 from pathlib import Path
 import traceback
-from typing import Any, ClassVar, Dict, List, Mapping
+from typing import Any, Dict, List, Mapping
 from os import getenv, getcwd
 
 LOGGER: Logger = getLogger(__name__)
@@ -42,13 +42,6 @@ class ContextFilter(Filter):
     This is a filter which transforms log lines with metadata into structured JSON log lines.
     These structured JSON log lines are automatically parsed and indexed by LogDNA.
     """
-
-    @property
-    def message_key(self):
-        return self.__message_key
-
-    __message_key: ClassVar[str] = "message"
-    """name of the key under which the msg will be saved"""
 
     __job_retry_limit_env = "JOB_RETRY_LIMIT"
     """ENV-Key of the retry limit per job, name defined by Code Engine"""
@@ -193,25 +186,15 @@ class ContextFilter(Filter):
         for key in self.__excluded_logging_context_keys:
             new_dict.pop(key, None)
 
-        # without specifying this level, the logging service cannot detect its level
-        # so this is super important
         new_dict["level"] = record.levelname
-        new_dict[self.__message_key] = record.msg
-
-        if self.__message_key != "msg":
-            # remove msg as it is saved in another name
-            # message is used in the formatting string
-            new_dict.pop("msg", None)
+        new_dict["message"] = record.msg
 
         # Add arguments individual to the new record message
         if isinstance(record.args, dict):
             for k, v in record.args.items():
                 new_dict[k] = v
-
             # set them to empty, as already included
-            #record.args = {}
-            # Edit: do not remove it, as the record should be left as intact as possible
-
+            record.args = {}
             # remove it from the new_dict, as they are saved individually
             new_dict.pop("args", None)
 
@@ -228,7 +211,7 @@ class ContextFilter(Filter):
             record (LogRecord): LogRecord with possible exc_info field
         """
 
-        message = new_record_dict[self.__message_key]
+        message = new_record_dict['message']
 
         if record.exc_info:
 
@@ -240,13 +223,11 @@ class ContextFilter(Filter):
 
             # delete the info from the saved dict
             new_record_dict.pop("exc_info", None)
-
             # Clear record.exc_info
-            #record.exc_info = None
-            # Edit: do not remove it, as the record should be left as intact as possible
+            record.exc_info = None
 
             # append it to the message to have it displayed as log message
-            new_record_dict[self.__message_key] = message + '\n' + exc_info
+            new_record_dict['message'] = message + '\n' + exc_info
 
     def __check_is_imported_module(self, path_name: str) -> bool:
         work_dir = Path(getcwd())
@@ -322,34 +303,29 @@ class ContextFilter(Filter):
 
     def filter(self, record: LogRecord) -> bool:
         """Combine message and contextual information into message argument of the record."""
-        try:
 
-            # start with the pre-set context
-            new_record_msg: Dict[str, Any] = self.__context.copy()
+        # start with the pre-set context
+        new_record_msg: Dict[str, Any] = self.__context.copy()
 
-            new_dict = self.__filter_imported_modules(record)
-            new_record_msg.update(new_dict)
+        new_dict = self.__filter_imported_modules(record)
+        new_record_msg.update(new_dict)
 
-            new_dict = self.__add_log_record_info(record)
-            new_record_msg.update(new_dict)
+        new_dict = self.__add_log_record_info(record)
+        new_record_msg.update(new_dict)
 
-            new_dict = self.__check_failed_pipeline_status(record)
-            new_record_msg.update(new_dict)
+        new_dict = self.__check_failed_pipeline_status(record)
+        new_record_msg.update(new_dict)
 
-            # Add exception info to log message
-            self.__add_available_exec_info(new_record_msg, record)
+        # Add exception info to log message
+        self.__add_available_exec_info(new_record_msg, record)
 
+        # Override record message and clear record args
+        dumped_new_dict = json.dumps(new_record_msg)
+        if not self.__disable_log_formatting:
             # Override record message and clear record args
-            dumped_new_dict = json.dumps(new_record_msg)
-            if not self.__disable_log_formatting:
-                # Override record message and clear record args
-                record.msg = dumped_new_dict
-            else:
-                # save it in new attribute, will not be shown.
-                record.log_formatting_message = dumped_new_dict
-
-        except Exception:
-            # ensure it does not stop the program if something does wrong
-            return True
+            record.msg = dumped_new_dict
+        else:
+            # save it in new attribute, will not be shown.
+            record.log_formatting_message = dumped_new_dict
 
         return True
