@@ -65,7 +65,8 @@ class PythonLogger:
                      app: Optional[str],
                      extra_context_dict: Optional[Dict[str, str]] = None,
                      logging_level: int = INFO,
-                     disable_log_formatting: Optional[bool] = None) -> None:
+                     disable_log_formatting: Optional[bool] = None,
+                     split_threshold: int = 1000) -> None:
         """Configures the root as required. To be called before any logging commands in the main file (very top).
 
         Sets the logging format for the root logger and thus for every child logger.
@@ -105,7 +106,7 @@ class PythonLogger:
             context_dict["app"] = app
         context_dict["version"] = version_constant
         context_dict["logger_version"] = __version__
-        cls.__context_filter = ContextFilter(context_dict, disable_log_formatting)
+        cls.__context_filter = ContextFilter(context_dict, disable_log_formatting, split_threshold)
         handler.addFilter(cls.__context_filter)
         basicConfig(
             level=logging_level,

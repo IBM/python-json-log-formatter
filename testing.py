@@ -31,3 +31,5 @@ if __name__ == '__main__':
         raise ValueError("testError")
     except Exception as ex:
         LOGGER.critical("CRITICAL FAILURE: Completely aborted: Failed to execute.", exc_info=ex)
+
+    LOGGER.info("ABAC"*500)

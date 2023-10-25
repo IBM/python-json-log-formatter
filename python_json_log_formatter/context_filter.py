@@ -29,13 +29,16 @@ Author:
 from __future__ import annotations
 
 import json
-from logging import CRITICAL, ERROR, LogRecord, Filter, WARNING, Logger, getLevelName, getLogger
+from logging import CRITICAL, ERROR, LogRecord, Filter, WARNING, Logger, getLevelName, getLogger, makeLogRecord
 from pathlib import Path
 import traceback
 from typing import Any, ClassVar, Dict, List, Mapping
 from os import getenv, getcwd
 
 LOGGER: Logger = getLogger(__name__)
+
+class _StopLogging(Exception):
+    pass
 
 class ContextFilter(Filter):
     """
@@ -47,8 +50,11 @@ class ContextFilter(Filter):
     def message_key(self):
         return self.__message_key
 
-    __message_key: ClassVar[str] = "message"
+    __message_key: ClassVar[str] = "msg"
     """name of the key under which the msg will be saved"""
+
+    __part_key: ClassVar[str] = "part_nr"
+    """number of the current part of an original message"""
 
     __job_retry_limit_env = "JOB_RETRY_LIMIT"
     """ENV-Key of the retry limit per job, name defined by Code Engine"""
@@ -90,10 +96,11 @@ class ContextFilter(Filter):
     ]
     """Keys of the logging Record which should not be included automatically."""
 
-    def __init__(self, context: Dict[str, str], disable_log_formatting: bool = False) -> None:
+    def __init__(self, context: Dict[str, str], disable_log_formatting: bool = False, split_threshold: int = 1000) -> None:
         super().__init__()
         self.__disable_log_formatting = disable_log_formatting
         self.__context: Dict[str, str] = {}
+        self.__split_threshold = split_threshold
         self.update_context(context)
 
     def __add_selected_env_vars_to_context(self, context_dict: Mapping[str, str]) -> Dict[str, Any]:
@@ -217,7 +224,7 @@ class ContextFilter(Filter):
 
         return new_dict
 
-    def __add_available_exec_info(self, new_record_dict: Dict[str, Any], record: LogRecord):
+    def __log_available_exec_info(self, new_record_dict: Dict[str, Any], record: LogRecord):
         """Updates the provided context information with exc_information from the log record.
 
         Will remove the exc_info from the record.
@@ -228,25 +235,37 @@ class ContextFilter(Filter):
             record (LogRecord): LogRecord with possible exc_info field
         """
 
-        message = new_record_dict[self.__message_key]
-
         if record.exc_info:
 
             # get the individual parts
             exc_type, exc_value, exc_traceback = record.exc_info
 
             # only save the trace
-            exc_info = ''.join(traceback.format_exception(exc_type, exc_value, exc_traceback))
+            exc_info = traceback.format_exception(exc_type, exc_value, exc_traceback)
 
             # delete the info from the saved dict
-            new_record_dict.pop("exc_info", None)
 
+            new_record_dict.pop("exc_info", None)
             # Clear record.exc_info
-            #record.exc_info = None
+            record.exc_info = None
             # Edit: do not remove it, as the record should be left as intact as possible
 
-            # append it to the message to have it displayed as log message
-            new_record_dict[self.__message_key] = message + '\n' + exc_info
+            # Log it now, so it is printed before the others
+            # does not contain the exc_info, so it will go through
+            new_record = makeLogRecord(new_record_dict)
+            LOGGER.handle(new_record)
+
+            # now log each line as a new log message
+            # but exclude the already logged message
+            no_msg_dict = new_record_dict.copy()
+            no_msg_dict.pop(self.__message_key)
+
+            for row in exc_info:
+                new_record = makeLogRecord(no_msg_dict)
+                new_record.msg = row
+                LOGGER.handle(new_record)
+
+            raise _StopLogging()
 
     def __check_is_imported_module(self, path_name: str) -> bool:
         work_dir = Path(getcwd())
@@ -320,6 +339,35 @@ class ContextFilter(Filter):
 
         return new_dict
 
+    def __log_too_long_message(self, new_record_dict: Dict[str, Any]):
+        if len(new_record_dict[self.__message_key]) <= self.__split_threshold:
+            # that should be fine in length
+            # must be smaller equals, only truncate after the threshold
+            return
+
+        # this is too long, split into multiple messages
+        new_part_nr: int = new_record_dict.get(self.__part_key, 0)
+
+        # log the remaining message as new log
+        message: str = new_record_dict.pop(self.__message_key)
+
+        old_index = 0
+        while(old_index < len(message)):
+            new_part_nr: int = new_part_nr + 1
+            part_prefix = f"{new_part_nr}: "
+            index = old_index + self.__split_threshold - len(part_prefix)
+
+            # get that part of the message and send it
+            part_msg = part_prefix + message[old_index:index]
+            new_record = makeLogRecord(new_record_dict)
+            new_record.msg = part_msg
+            LOGGER.handle(new_record)
+            old_index = index
+            # now everything has been printed out
+
+        raise _StopLogging()
+
+
     def filter(self, record: LogRecord) -> bool:
         """Combine message and contextual information into message argument of the record."""
         try:
@@ -336,11 +384,13 @@ class ContextFilter(Filter):
             new_dict = self.__check_failed_pipeline_status(record)
             new_record_msg.update(new_dict)
 
-            # Add exception info to log message
-            self.__add_available_exec_info(new_record_msg, record)
+            # These now will log, therefore must be executed at the end
+            self.__log_available_exec_info(new_record_msg, record)
+            self.__log_too_long_message(new_record_msg)
 
             # Override record message and clear record args
             dumped_new_dict = json.dumps(new_record_msg)
+
             if not self.__disable_log_formatting:
                 # Override record message and clear record args
                 record.msg = dumped_new_dict
@@ -348,6 +398,9 @@ class ContextFilter(Filter):
                 # save it in new attribute, will not be shown.
                 record.log_formatting_message = dumped_new_dict
 
+        except _StopLogging:
+            # this message has been fully logged
+            return False
         except Exception:
             # ensure it does not stop the program if something does wrong
             return True

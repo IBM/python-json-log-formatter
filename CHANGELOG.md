@@ -15,6 +15,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
+## Python-Logger [3.3.0] - 2023-10-25
+
+### Changed
+
+* Exception traces will be logged as new log messages with the very same attributes instead of contacting them into a single message
+
+### Fixed
+
+* Overly long log messages will be split into multiple smaller log messages if they exceed a set threshold
+  * Adds new optional argument `split_threshold` with a default of 1000
+
 ## Python-Logger [3.2.5] - 2023-07-10
 
 ### Changed
