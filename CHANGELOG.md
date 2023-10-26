@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
+## Python-Logger [3.3.0] - 2023-10-26
+
+### Fixed
+
+* Switch back the message key from `msg` to `message` as this keyword is required
+
 ## Python-Logger [3.3.0] - 2023-10-25
 
 ### Changed
