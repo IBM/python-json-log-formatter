@@ -15,7 +15,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
-## Python-Logger [3.3.0] - 2023-10-26
+## Python-Logger [3.3.2] - 2023-10-31
+
+### Fixed
+
+* Increases default split size from 1000 to 3000
+* Fixes not printing the original message on exception, but only the stack trace
+
+## Python-Logger [3.3.1] - 2023-10-26
 
 ### Fixed
 

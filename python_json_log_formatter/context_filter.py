@@ -253,15 +253,18 @@ class ContextFilter(Filter):
             # Log it now, so it is printed before the others
             # does not contain the exc_info, so it will go through
             new_record = makeLogRecord(new_record_dict)
+            # pop the message to exclude it from further messages
+            # also we need to assign it to "msg" so when handled
+            # The filter can then do its thing
+            msg = new_record_dict.pop(self.__message_key)
+            new_record.msg = msg
             LOGGER.handle(new_record)
 
             # now log each line as a new log message
             # but exclude the already logged message
-            no_msg_dict = new_record_dict.copy()
-            no_msg_dict.pop(self.__message_key)
-
+            # it is popped before
             for row in exc_info:
-                new_record = makeLogRecord(no_msg_dict)
+                new_record = makeLogRecord(new_record_dict)
                 new_record.msg = row
                 LOGGER.handle(new_record)
 

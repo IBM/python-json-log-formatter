@@ -66,7 +66,7 @@ class PythonLogger:
                      extra_context_dict: Optional[Dict[str, str]] = None,
                      logging_level: int = INFO,
                      disable_log_formatting: Optional[bool] = None,
-                     split_threshold: int = 1000) -> None:
+                     split_threshold: int = 3000) -> None:
         """Configures the root as required. To be called before any logging commands in the main file (very top).
 
         Sets the logging format for the root logger and thus for every child logger.
