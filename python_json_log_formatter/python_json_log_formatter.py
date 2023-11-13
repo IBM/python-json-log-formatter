@@ -66,7 +66,8 @@ class PythonLogger:
                      extra_context_dict: Optional[Dict[str, str]] = None,
                      logging_level: int = INFO,
                      disable_log_formatting: Optional[bool] = None,
-                     split_threshold: int = 3000) -> None:
+                     split_threshold: Optional[int] = 3000,
+                     ex_trace_as_new_message: Optional[bool] = None) -> None:
         """Configures the root as required. To be called before any logging commands in the main file (very top).
 
         Sets the logging format for the root logger and thus for every child logger.
@@ -82,6 +83,8 @@ class PythonLogger:
             extra_context_dict (Dict[str, str]): additional logging information like 'env', 'processing_id' and more.
             logging_level (int): Log level of root logger. Defaults to INFO.
             disable_log_formatting (bool, optional): Disable the log formatting, e.g. local development. Defaults to None/False.
+            split_threshold (int): Splits the message after a certain length into a new message with the same attributes. Defaults to 3000.
+            ex_trace_as_new_message (bool, optional): Split exception stack traces into individual messages, instead of concatenating them into a single long one. Defaults to None/False.
 
         Raises:
             ValueError: Incorrect version format supplied
@@ -99,6 +102,11 @@ class PythonLogger:
                 getenv("DISABLE_LOG_FORMATTING", "False")
                 ))
 
+        if ex_trace_as_new_message is None:
+            ex_trace_as_new_message = bool(strtobool(
+                getenv("EX_TRACE_AS_NEW_MESSAGE", "False")
+            ))
+
         handler = StreamHandler()
 
         context_dict = extra_context_dict or {}
@@ -106,7 +114,7 @@ class PythonLogger:
             context_dict["app"] = app
         context_dict["version"] = version_constant
         context_dict["logger_version"] = __version__
-        cls.__context_filter = ContextFilter(context_dict, disable_log_formatting, split_threshold)
+        cls.__context_filter = ContextFilter(context_dict, disable_log_formatting, split_threshold, ex_trace_as_new_message)
         handler.addFilter(cls.__context_filter)
         basicConfig(
             level=logging_level,

@@ -15,6 +15,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
+## Python-Logger [3.4.0] - 2023-11-13
+
+### Added
+
+* Revert changes of v3.3.0, error messages will again be sent in a single message
+  * Allows a direct view of what went wrong, without checking anything else
+  * It is now an Opt-in using a new argument
+  * Added argument and env variable `EX_TRACE_AS_NEW_MESSAGE`
+
 ## Python-Logger [3.3.2] - 2023-10-31
 
 ### Fixed

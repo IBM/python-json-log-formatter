@@ -96,11 +96,16 @@ class ContextFilter(Filter):
     ]
     """Keys of the logging Record which should not be included automatically."""
 
-    def __init__(self, context: Dict[str, str], disable_log_formatting: bool = False, split_threshold: int = 1000) -> None:
+    def __init__(self,
+                 context: Dict[str, str],
+                 disable_log_formatting: bool = False,
+                 split_threshold: int = 1000,
+                 ex_trace_as_new_message: bool = False) -> None:
         super().__init__()
         self.__disable_log_formatting = disable_log_formatting
         self.__context: Dict[str, str] = {}
         self.__split_threshold = split_threshold
+        self.__ex_trace_as_new_message = ex_trace_as_new_message
         self.update_context(context)
 
     def __add_selected_env_vars_to_context(self, context_dict: Mapping[str, str]) -> Dict[str, Any]:
@@ -248,27 +253,38 @@ class ContextFilter(Filter):
             new_record_dict.pop("exc_info", None)
             # Clear record.exc_info
             record.exc_info = None
-            # Edit: do not remove it, as the record should be left as intact as possible
 
-            # Log it now, so it is printed before the others
-            # does not contain the exc_info, so it will go through
-            new_record = makeLogRecord(new_record_dict)
-            # pop the message to exclude it from further messages
-            # also we need to assign it to "msg" so when handled
-            # The filter can then do its thing
-            msg = new_record_dict.pop(self.__message_key)
-            new_record.msg = msg
-            LOGGER.handle(new_record)
+            if not self.__ex_trace_as_new_message:
 
-            # now log each line as a new log message
-            # but exclude the already logged message
-            # it is popped before
-            for row in exc_info:
+                # append the exception stack to the existing message
+                # add new lines
+                old_msg = new_record_dict[self.__message_key]
+                new_msg = old_msg + "\n" + "\n".join(exc_info)
+                new_record_dict[self.__message_key] = new_msg
+            else:
+                # make a new log line for each stack trace element
+                # starting with the original message, so it is send first
+
+                # Log it now, so it is printed before the others
+                # does not contain the exc_info, so it will go through
                 new_record = makeLogRecord(new_record_dict)
-                new_record.msg = row
+                # pop the message to exclude it from further messages
+                # also we need to assign it to "msg" so when handled
+                # The filter can then do its thing
+                msg = new_record_dict.pop(self.__message_key)
+                new_record.msg = msg
                 LOGGER.handle(new_record)
 
-            raise _StopLogging()
+                # now log each line as a new log message
+                # but exclude the already logged message
+                # it is popped before
+                for row in exc_info:
+                    new_record = makeLogRecord(new_record_dict)
+                    new_record.msg = row
+                    LOGGER.handle(new_record)
+
+                # stop the logging, the original message was sent first
+                raise _StopLogging()
 
     def __check_is_imported_module(self, path_name: str) -> bool:
         work_dir = Path(getcwd())
@@ -406,6 +422,7 @@ class ContextFilter(Filter):
             return False
         except Exception:
             # ensure it does not stop the program if something does wrong
+            # the message will still be logged
             return True
 
         return True
