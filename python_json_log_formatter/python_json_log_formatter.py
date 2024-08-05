@@ -37,6 +37,7 @@ from typing import ClassVar, Dict, List, Optional
 from python_json_log_formatter.context_filter import ContextFilter
 from python_json_log_formatter._version import __version__
 
+
 class PythonLogger:
     """This class wraps functions used for logging for an easier, direct access.
 
@@ -60,14 +61,16 @@ class PythonLogger:
         self.__context_filter.excluded_logging_context_keys = value
 
     @classmethod
-    def setup_logger(cls,
-                     version_constant: str,
-                     app: Optional[str],
-                     extra_context_dict: Optional[Dict[str, str]] = None,
-                     logging_level: int = INFO,
-                     disable_log_formatting: Optional[bool] = None,
-                     split_threshold: Optional[int] = 3000,
-                     ex_trace_as_new_message: Optional[bool] = None) -> None:
+    def setup_logger(
+        cls,
+        version_constant: str,
+        app: Optional[str],
+        extra_context_dict: Optional[Dict[str, str]] = None,
+        logging_level: int = INFO,
+        disable_log_formatting: Optional[bool] = None,
+        split_threshold: int = 3000,
+        ex_trace_as_new_message: Optional[bool] = None,
+    ) -> None:
         """Configures the root as required. To be called before any logging commands in the main file (very top).
 
         Sets the logging format for the root logger and thus for every child logger.
@@ -92,20 +95,23 @@ class PythonLogger:
 
         # check that the version string has the correct format
         version_match = re.fullmatch(
-                r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?(\s+\(\d{4}/\d{2}/\d{2}\))?$",
-                version_constant)
+            r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?(\s+\(\d{4}/\d{2}/\d{2}\))?$",
+            version_constant,
+        )
         if not version_match:
-            raise ValueError("Incorrect version format. Please use semantic versioning and prepend optionally '(yyyy/mm/dd)':https://semver.org/#semantic-versioning-specification-semver  https://ihateregex.io/expr/semver/")
+            raise ValueError(
+                "Incorrect version format. Please use semantic versioning and prepend optionally '(yyyy/mm/dd)':https://semver.org/#semantic-versioning-specification-semver  https://ihateregex.io/expr/semver/"
+            )
 
         if disable_log_formatting is None:
-            disable_log_formatting =  bool(strtobool(
-                getenv("DISABLE_LOG_FORMATTING", "False")
-                ))
+            disable_log_formatting = bool(
+                strtobool(getenv("DISABLE_LOG_FORMATTING", "False"))
+            )
 
         if ex_trace_as_new_message is None:
-            ex_trace_as_new_message = bool(strtobool(
-                getenv("EX_TRACE_AS_NEW_MESSAGE", "False")
-            ))
+            ex_trace_as_new_message = bool(
+                strtobool(getenv("EX_TRACE_AS_NEW_MESSAGE", "False"))
+            )
 
         handler = StreamHandler()
 
@@ -114,13 +120,18 @@ class PythonLogger:
             context_dict["app"] = app
         context_dict["version"] = version_constant
         context_dict["logger_version"] = __version__
-        cls.__context_filter = ContextFilter(context_dict, disable_log_formatting, split_threshold, ex_trace_as_new_message)
+        cls.__context_filter = ContextFilter(
+            context_dict,
+            disable_log_formatting,
+            split_threshold,
+            ex_trace_as_new_message,
+        )
         handler.addFilter(cls.__context_filter)
         basicConfig(
             level=logging_level,
             format=f"[%(asctime)s %(name)s] %(levelname)s: %({cls.__context_filter.message_key})s",
-            handlers=[handler]
-    )
+            handlers=[handler],
+        )
 
     @classmethod
     def update_context(cls, context: Dict[str, str]) -> None:

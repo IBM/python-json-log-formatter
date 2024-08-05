@@ -29,7 +29,17 @@ Author:
 from __future__ import annotations
 
 import json
-from logging import CRITICAL, ERROR, LogRecord, Filter, WARNING, Logger, getLevelName, getLogger, makeLogRecord
+from logging import (
+    CRITICAL,
+    ERROR,
+    LogRecord,
+    Filter,
+    WARNING,
+    Logger,
+    getLevelName,
+    getLogger,
+    makeLogRecord,
+)
 from pathlib import Path
 import traceback
 from typing import Any, ClassVar, Dict, List, Mapping
@@ -37,8 +47,10 @@ from os import getenv, getcwd
 
 LOGGER: Logger = getLogger(__name__)
 
+
 class _StopLogging(Exception):
     pass
+
 
 class ContextFilter(Filter):
     """
@@ -66,20 +78,20 @@ class ContextFilter(Filter):
     """ENV-Key of the current remaining job-retries, calculated during filter option, name defined here by developer."""
 
     __included_env_vars = [
-            "ENVIRONMENT",
-            "env",
-            "JOB_INDEX",
-            __job_retry_count_env,
-            "JOB_MODE",
-            __job_retry_limit_env,
-            "CE_DOMAIN",
-            "CE_JOB",
-            "CE_JOBRUN",
-            "CE_SUBDOMAIN",
-            "HOSTNAME",
-            "BRANCH_NAME",
-            "TARGET_BRANCH_NAME"
-        ]
+        "ENVIRONMENT",
+        "env",
+        "JOB_INDEX",
+        __job_retry_count_env,
+        "JOB_MODE",
+        __job_retry_limit_env,
+        "CE_DOMAIN",
+        "CE_JOB",
+        "CE_JOBRUN",
+        "CE_SUBDOMAIN",
+        "HOSTNAME",
+        "BRANCH_NAME",
+        "TARGET_BRANCH_NAME",
+    ]
     """Keys of the environment which should be included by default"""
 
     @property
@@ -91,16 +103,16 @@ class ContextFilter(Filter):
     def excluded_logging_context_keys(self, value: List[str]) -> None:
         self.__excluded_logging_context_keys = value
 
-    __excluded_logging_context_keys: List[str] = [
-
-    ]
+    __excluded_logging_context_keys: List[str] = []
     """Keys of the logging Record which should not be included automatically."""
 
-    def __init__(self,
-                 context: Dict[str, str],
-                 disable_log_formatting: bool = False,
-                 split_threshold: int = 1000,
-                 ex_trace_as_new_message: bool = False) -> None:
+    def __init__(
+        self,
+        context: Dict[str, str],
+        disable_log_formatting: bool = False,
+        split_threshold: int = 1000,
+        ex_trace_as_new_message: bool = False,
+    ) -> None:
         super().__init__()
         self.__disable_log_formatting = disable_log_formatting
         self.__context: Dict[str, str] = {}
@@ -108,7 +120,9 @@ class ContextFilter(Filter):
         self.__ex_trace_as_new_message = ex_trace_as_new_message
         self.update_context(context)
 
-    def __add_selected_env_vars_to_context(self, context_dict: Mapping[str, str]) -> Dict[str, Any]:
+    def __add_selected_env_vars_to_context(
+        self, context_dict: Mapping[str, str]
+    ) -> Dict[str, Any]:
         """Creates a union of the existing context data and included environment variables.
 
         The result will be a new dictionary containing both keys,
@@ -132,7 +146,9 @@ class ContextFilter(Filter):
                 if env_key in context_dict:
                     # skip pre-set keys, as user input is more important than env vars
                     # no real option of logging?
-                    LOGGER.warning(f"Context key {env_key} set by both user and automatic env detection, skipping env value.")
+                    LOGGER.warning(
+                        f"Context key {env_key} set by both user and automatic env detection, skipping env value."
+                    )
                     continue
                 new_dict[env_key] = env_value
         return new_dict
@@ -161,7 +177,10 @@ class ContextFilter(Filter):
                 new_dict[self.__job_remaining_retries] = remaining_retries
         except Exception as ex:
             # impossible to calculate
-            LOGGER.warning("Impossible to calculate remaining job retries due to error", exc_info=ex)
+            LOGGER.warning(
+                "Impossible to calculate remaining job retries due to error",
+                exc_info=ex,
+            )
 
         return new_dict
 
@@ -221,7 +240,7 @@ class ContextFilter(Filter):
                 new_dict[k] = v
 
             # set them to empty, as already included
-            #record.args = {}
+            # record.args = {}
             # Edit: do not remove it, as the record should be left as intact as possible
 
             # remove it from the new_dict, as they are saved individually
@@ -229,7 +248,9 @@ class ContextFilter(Filter):
 
         return new_dict
 
-    def __log_available_exec_info(self, new_record_dict: Dict[str, Any], record: LogRecord):
+    def __log_available_exec_info(
+        self, new_record_dict: Dict[str, Any], record: LogRecord
+    ):
         """Updates the provided context information with exc_information from the log record.
 
         Will remove the exc_info from the record.
@@ -353,8 +374,8 @@ class ContextFilter(Filter):
         # Handle error logs
         # 40: Error, and higher (critical)
         if record.levelno >= CRITICAL:
-            new_dict['job_status'] = 'failed'
-            new_dict['pipeline_status'] = 'failed'
+            new_dict["job_status"] = "failed"
+            new_dict["pipeline_status"] = "failed"
 
         return new_dict
 
@@ -371,7 +392,7 @@ class ContextFilter(Filter):
         message: str = new_record_dict.pop(self.__message_key)
 
         old_index = 0
-        while(old_index < len(message)):
+        while old_index < len(message):
             new_part_nr: int = new_part_nr + 1
             part_prefix = f"{new_part_nr}: "
             index = old_index + self.__split_threshold - len(part_prefix)
@@ -385,7 +406,6 @@ class ContextFilter(Filter):
             # now everything has been printed out
 
         raise _StopLogging()
-
 
     def filter(self, record: LogRecord) -> bool:
         """Combine message and contextual information into message argument of the record."""
