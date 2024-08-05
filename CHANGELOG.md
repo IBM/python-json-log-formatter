@@ -15,6 +15,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
+## Python-Logger [3.6.0] - 2024-08-05
+
+### Added
+
+* Exposed `MESSAGE_KEY_CONST` as constant
+
+### Changed
+
+* Changed default formatting string to just the logging line, without any time prefixes
+* Improved access of property `message_key`, making it safe against un-initialized access
+
 ## Python-Logger [3.5.0] - 2024-08-05
 
 ### Added

@@ -48,6 +48,9 @@ from os import getenv, getcwd
 LOGGER: Logger = getLogger(__name__)
 
 
+MESSAGE_KEY_CONST = "message"
+
+
 class _StopLogging(Exception):
     pass
 
@@ -62,22 +65,22 @@ class ContextFilter(Filter):
     def message_key(self):
         return self.__message_key
 
-    __message_key: ClassVar[str] = "message"
+    __message_key: ClassVar[str] = MESSAGE_KEY_CONST
     """name of the key under which the msg will be saved"""
 
     __part_key: ClassVar[str] = "part_nr"
     """number of the current part of an original message"""
 
-    __job_retry_limit_env = "JOB_RETRY_LIMIT"
+    __job_retry_limit_env: ClassVar[str] = "JOB_RETRY_LIMIT"
     """ENV-Key of the retry limit per job, name defined by Code Engine"""
 
-    __job_retry_count_env = "JOB_INDEX_RETRY_COUNT"
+    __job_retry_count_env: ClassVar[str] = "JOB_INDEX_RETRY_COUNT"
     """ENV-Key of the current re-try count per job, name defined by Code Engine"""
 
-    __job_remaining_retries = "job_remaining_retries"
+    __job_remaining_retries: ClassVar[str] = "job_remaining_retries"
     """ENV-Key of the current remaining job-retries, calculated during filter option, name defined here by developer."""
 
-    __included_env_vars = [
+    __included_env_vars: ClassVar[list[str]] = [
         "ENVIRONMENT",
         "env",
         "JOB_INDEX",

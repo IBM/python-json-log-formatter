@@ -34,7 +34,7 @@ from os import getenv
 import re
 from typing import ClassVar
 
-from python_json_log_formatter.context_filter import ContextFilter
+from python_json_log_formatter.context_filter import ContextFilter, MESSAGE_KEY_CONST
 from python_json_log_formatter._version import __version__
 
 
@@ -53,7 +53,10 @@ class PythonLogger:
 
     @property
     def message_key(self) -> str:
-        return self.__context_filter.message_key
+        if self.__context_filter:
+            return self.__context_filter.message_key
+        else:
+            return MESSAGE_KEY_CONST
 
     @property
     def excluded_logging_context_keys(self) -> list[str]:
@@ -135,7 +138,7 @@ class PythonLogger:
         basicConfig(
             level=logging_level,
             format=log_format_str  # custom provided
-            or f"[%(asctime)s %(name)s] %(levelname)s: %({cls.__context_filter.message_key})s",
+            or f"%({cls.__context_filter.message_key})s",
             handlers=[handler],
         )
 
