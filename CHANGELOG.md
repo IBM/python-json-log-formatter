@@ -15,6 +15,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
+## Python-Logger [3.5.0] - 2024-08-05
+
+### Added
+
+* Added option to manually specify the logging format string via new argument
+  * `log_format_str` in method `setup_logger`
+  * default value remains the existing format string
+
+### Changed
+
+* Removed pyi files as they are not required
+* Applied black formatter
+* Replaced typings `Optional`, `List` and `Dict` with their new variants
+
 ## Python-Logger [3.4.0] - 2023-11-13
 
 ### Added

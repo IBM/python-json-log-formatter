@@ -42,7 +42,7 @@ from logging import (
 )
 from pathlib import Path
 import traceback
-from typing import Any, ClassVar, Dict, List, Mapping
+from typing import Any, ClassVar, Mapping
 from os import getenv, getcwd
 
 LOGGER: Logger = getLogger(__name__)
@@ -95,34 +95,34 @@ class ContextFilter(Filter):
     """Keys of the environment which should be included by default"""
 
     @property
-    def excluded_logging_context_keys(self) -> List[str]:
+    def excluded_logging_context_keys(self) -> list[str]:
         """Keys of the logging Record which should not be included automatically."""
         return self.__excluded_logging_context_keys
 
     @excluded_logging_context_keys.setter
-    def excluded_logging_context_keys(self, value: List[str]) -> None:
+    def excluded_logging_context_keys(self, value: list[str]) -> None:
         self.__excluded_logging_context_keys = value
 
-    __excluded_logging_context_keys: List[str] = []
+    __excluded_logging_context_keys: list[str] = []
     """Keys of the logging Record which should not be included automatically."""
 
     def __init__(
         self,
-        context: Dict[str, str],
+        context: dict[str, str],
         disable_log_formatting: bool = False,
         split_threshold: int = 1000,
         ex_trace_as_new_message: bool = False,
     ) -> None:
         super().__init__()
         self.__disable_log_formatting = disable_log_formatting
-        self.__context: Dict[str, str] = {}
+        self.__context: dict[str, str] = {}
         self.__split_threshold = split_threshold
         self.__ex_trace_as_new_message = ex_trace_as_new_message
         self.update_context(context)
 
     def __add_selected_env_vars_to_context(
         self, context_dict: Mapping[str, str]
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Creates a union of the existing context data and included environment variables.
 
         The result will be a new dictionary containing both keys,
@@ -137,7 +137,7 @@ class ContextFilter(Filter):
         """
 
         # create a copy of the immutable object
-        new_dict: Dict[str, Any] = dict(context_dict)
+        new_dict: dict[str, Any] = dict(context_dict)
 
         for env_key in self.__included_env_vars:
             env_value = getenv(env_key, None)
@@ -153,7 +153,7 @@ class ContextFilter(Filter):
                 new_dict[env_key] = env_value
         return new_dict
 
-    def __calculate_remaining_job_retries(self) -> Dict[str, Any]:
+    def __calculate_remaining_job_retries(self) -> dict[str, Any]:
         """Calculates the remaining job retries count for this job and adds them to the logging context.
 
         Requires the current retry count and the maximum limit saved in the environment.
@@ -164,7 +164,7 @@ class ContextFilter(Filter):
         Returns:
             Dict[str, Any]: logging context containing only the remaining retries
         """
-        new_dict: Dict[str, Any] = {}
+        new_dict: dict[str, Any] = {}
         try:
 
             job_retry_count_str = getenv(self.__job_retry_count_env, None)
@@ -205,7 +205,7 @@ class ContextFilter(Filter):
 
         self.__context.update(new_dict)
 
-    def __add_log_record_info(self, record: LogRecord) -> Dict[str, Any]:
+    def __add_log_record_info(self, record: LogRecord) -> dict[str, Any]:
         """Extracts log record information into a new logging dict context.
 
         Used for transferring certain required information into the new logging context to avoid loosing this data.
@@ -219,7 +219,7 @@ class ContextFilter(Filter):
 
         # add all available attributes of the record
         # copy to ensure to not edit the record itself
-        new_dict: Dict[str, Any] = record.__dict__.copy()
+        new_dict: dict[str, Any] = record.__dict__.copy()
 
         for key in self.__excluded_logging_context_keys:
             new_dict.pop(key, None)
@@ -249,7 +249,7 @@ class ContextFilter(Filter):
         return new_dict
 
     def __log_available_exec_info(
-        self, new_record_dict: Dict[str, Any], record: LogRecord
+        self, new_record_dict: dict[str, Any], record: LogRecord
     ):
         """Updates the provided context information with exc_information from the log record.
 
@@ -327,7 +327,7 @@ class ContextFilter(Filter):
 
         return False
 
-    def __filter_imported_modules(self, record: LogRecord) -> Dict[str, Any]:
+    def __filter_imported_modules(self, record: LogRecord) -> dict[str, Any]:
         """Filters errors and critical failures from dependencies and sets their level to max warning.
 
         Will change the level of the record via side effects if filtered.
@@ -336,7 +336,7 @@ class ContextFilter(Filter):
             old_record (LogRecord): the log record being filtered.
         """
 
-        new_dict: Dict[str, Any] = {}
+        new_dict: dict[str, Any] = {}
 
         try:
             # debug, info and warning can stay in any case
@@ -368,9 +368,9 @@ class ContextFilter(Filter):
 
         return new_dict
 
-    def __check_failed_pipeline_status(self, record: LogRecord) -> Dict[str, Any]:
+    def __check_failed_pipeline_status(self, record: LogRecord) -> dict[str, Any]:
 
-        new_dict: Dict[str, Any] = {}
+        new_dict: dict[str, Any] = {}
         # Handle error logs
         # 40: Error, and higher (critical)
         if record.levelno >= CRITICAL:
@@ -379,7 +379,7 @@ class ContextFilter(Filter):
 
         return new_dict
 
-    def __log_too_long_message(self, new_record_dict: Dict[str, Any]):
+    def __log_too_long_message(self, new_record_dict: dict[str, Any]):
         if len(new_record_dict[self.__message_key]) <= self.__split_threshold:
             # that should be fine in length
             # must be smaller equals, only truncate after the threshold
@@ -412,7 +412,7 @@ class ContextFilter(Filter):
         try:
 
             # start with the pre-set context
-            new_record_msg: Dict[str, Any] = self.__context.copy()
+            new_record_msg: dict[str, Any] = self.__context.copy()
 
             new_dict = self.__filter_imported_modules(record)
             new_record_msg.update(new_dict)

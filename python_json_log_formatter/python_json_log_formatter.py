@@ -32,7 +32,7 @@ from distutils.util import strtobool
 from logging import INFO, StreamHandler, basicConfig
 from os import getenv
 import re
-from typing import ClassVar, Dict, List, Optional
+from typing import ClassVar
 
 from python_json_log_formatter.context_filter import ContextFilter
 from python_json_log_formatter._version import __version__
@@ -52,24 +52,29 @@ class PythonLogger:
     __context_filter: ClassVar[ContextFilter]
 
     @property
-    def excluded_logging_context_keys(self) -> List[str]:
+    def message_key(self) -> str:
+        return self.__context_filter.message_key
+
+    @property
+    def excluded_logging_context_keys(self) -> list[str]:
         """Keys of the logging Record which should not be included automatically."""
         return self.__context_filter.excluded_logging_context_keys
 
     @excluded_logging_context_keys.setter
-    def excluded_logging_context_keys(self, value: List[str]) -> None:
+    def excluded_logging_context_keys(self, value: list[str]) -> None:
         self.__context_filter.excluded_logging_context_keys = value
 
     @classmethod
     def setup_logger(
         cls,
         version_constant: str,
-        app: Optional[str],
-        extra_context_dict: Optional[Dict[str, str]] = None,
+        app: str | None,
+        extra_context_dict: dict[str, str] | None = None,
         logging_level: int = INFO,
-        disable_log_formatting: Optional[bool] = None,
+        disable_log_formatting: bool | None = None,
         split_threshold: int = 3000,
-        ex_trace_as_new_message: Optional[bool] = None,
+        ex_trace_as_new_message: bool | None = None,
+        log_format_str: str | None = None,
     ) -> None:
         """Configures the root as required. To be called before any logging commands in the main file (very top).
 
@@ -129,12 +134,13 @@ class PythonLogger:
         handler.addFilter(cls.__context_filter)
         basicConfig(
             level=logging_level,
-            format=f"[%(asctime)s %(name)s] %(levelname)s: %({cls.__context_filter.message_key})s",
+            format=log_format_str  # custom provided
+            or f"[%(asctime)s %(name)s] %(levelname)s: %({cls.__context_filter.message_key})s",
             handlers=[handler],
         )
 
     @classmethod
-    def update_context(cls, context: Dict[str, str]) -> None:
+    def update_context(cls, context: dict[str, str]) -> None:
         """Updates additional context information added to each log line.
 
         Will update the existing context with the given one, overwriting existing keys.
