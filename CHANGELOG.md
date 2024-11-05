@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
+## Python-Logger [3.7.0] - 2024-11-05
+
+### Added
+
+* Added two manual specified values for the calculation of the remaining job retries
+  * `JOB_RETRY_LIMIT_MANUAL` and `JOB_INDEX_RETRY_COUNT_MANUAL`
+  * will be used with a higher priority than the code engine supplied versions
+
 ## Python-Logger [3.6.0] - 2024-08-05
 
 ### Added

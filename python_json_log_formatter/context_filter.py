@@ -73,9 +73,13 @@ class ContextFilter(Filter):
 
     __job_retry_limit_env: ClassVar[str] = "JOB_RETRY_LIMIT"
     """ENV-Key of the retry limit per job, name defined by Code Engine"""
+    __job_retry_limit_manual_env: ClassVar[str] = "JOB_RETRY_LIMIT_MANUAL"
+    """ENV-Key of the retry limit per job, supplied by the user"""
 
     __job_retry_count_env: ClassVar[str] = "JOB_INDEX_RETRY_COUNT"
     """ENV-Key of the current re-try count per job, name defined by Code Engine"""
+    __job_retry_count_manual_env: ClassVar[str] = "JOB_INDEX_RETRY_COUNT_MANUAL"
+    """ENV-Key of the current re-try count per job, supplied by the user"""
 
     __job_remaining_retries: ClassVar[str] = "job_remaining_retries"
     """ENV-Key of the current remaining job-retries, calculated during filter option, name defined here by developer."""
@@ -169,9 +173,18 @@ class ContextFilter(Filter):
         """
         new_dict: dict[str, Any] = {}
         try:
-
+            # automatic
             job_retry_count_str = getenv(self.__job_retry_count_env, None)
             job_retry_count_max_str = getenv(self.__job_retry_limit_env, None)
+
+            # manual, use the automatic one as default
+            job_retry_count_str = getenv(
+                self.__job_retry_count_manual_env, job_retry_count_str
+            )
+            job_retry_count_max_str = getenv(
+                self.__job_retry_limit_manual_env, job_retry_count_max_str
+            )
+
             if job_retry_count_str and job_retry_count_max_str:
                 job_retry_count = int(job_retry_count_str)
                 job_retry_count_max = int(job_retry_count_max_str)
