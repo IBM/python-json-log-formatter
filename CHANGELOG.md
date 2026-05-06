@@ -15,13 +15,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Known Issues
 
+## Python-Logger [3.7.1] - 2026-05-06
+
+### Added
+
+* Added deprecation warning
+
 ## Python-Logger [3.7.0] - 2024-11-05
 
 ### Added
 
 * Added two manual specified values for the calculation of the remaining job retries
-  * `JOB_RETRY_LIMIT_MANUAL` and `JOB_INDEX_RETRY_COUNT_MANUAL`
-  * will be used with a higher priority than the code engine supplied versions
+    * `JOB_RETRY_LIMIT_MANUAL` and `JOB_INDEX_RETRY_COUNT_MANUAL`
+    * will be used with a higher priority than the code engine supplied versions
 
 ## Python-Logger [3.6.0] - 2024-08-05
 
@@ -39,8 +45,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 * Added option to manually specify the logging format string via new argument
-  * `log_format_str` in method `setup_logger`
-  * default value remains the existing format string
+    * `log_format_str` in method `setup_logger`
+    * default value remains the existing format string
 
 ### Changed
 
@@ -53,9 +59,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 * Revert changes of v3.3.0, error messages will again be sent in a single message
-  * Allows a direct view of what went wrong, without checking anything else
-  * It is now an Opt-in using a new argument
-  * Added argument and env variable `EX_TRACE_AS_NEW_MESSAGE`
+    * Allows a direct view of what went wrong, without checking anything else
+    * It is now an Opt-in using a new argument
+    * Added argument and env variable `EX_TRACE_AS_NEW_MESSAGE`
 
 ## Python-Logger [3.3.2] - 2023-10-31
 
@@ -79,7 +85,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 * Overly long log messages will be split into multiple smaller log messages if they exceed a set threshold
-  * Adds new optional argument `split_threshold` with a default of 1000
+    * Adds new optional argument `split_threshold` with a default of 1000
 
 ## Python-Logger [3.2.5] - 2023-07-10
 
@@ -92,16 +98,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 * Trying to modify the original record as few as possible, as that can have unintended side consequences
-  * No longer removes the record args or exec info from it
+    * No longer removes the record args or exec info from it
 * The place where the message is saved is changed from `message` to `msg`, to stay in the same naming as the original record would
-  * Can be changed via a central variable, changing it everywhere
+    * Can be changed via a central variable, changing it everywhere
 
 ## Python-Logger [3.2.3] - 2023-06-02
 
 ### Changed
 
 * Wraps the whole `filter` method in a try-catch block
-  * Avoid issues stopping the program due to a logger issue
+    * Avoid issues stopping the program due to a logger issue
 
 ### Fixed
 
@@ -113,7 +119,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 * Method docs
 * Dockerfile for testing
-  * Added a `.dockerignore` file
+    * Added a `.dockerignore` file
 *
 
 ### Changed
@@ -124,7 +130,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 * Log levels show up again in the logging analyzer tool
-  * added `new_dict["level"] = record.levelname` to the log output
+    * added `new_dict["level"] = record.levelname` to the log output
 
 ## Python-Logger [3.2.1] - 2023-06-01
 
@@ -135,19 +141,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 * The version string is now in a file named `_version.py`, similar to other Python projects
-  * Adjusted file paths and build method for this change
+    * Adjusted file paths and build method for this change
 
 ## Python-Logger [3.2.0] - 2023-05-23
 
 ### Added
 
 * Added option to disable the log formatting for local development
-  * Either supply `disable_log_formatting=True` when initializing the logger
-  * Or supply the ENV attribute `DISABLE_LOG_FORMATTING=True`
-  * Will only check for ENV if it is not explicitly set to false
+    * Either supply `disable_log_formatting=True` when initializing the logger
+    * Or supply the ENV attribute `DISABLE_LOG_FORMATTING=True`
+    * Will only check for ENV if it is not explicitly set to false
 * The logger includes all Logging-Record attributes by default
-  * Added an option to exclude individual fields, using the new attribute `excluded_logging_context_keys`
-  * No keys are excluded by default
+    * Added an option to exclude individual fields, using the new attribute `excluded_logging_context_keys`
+    * No keys are excluded by default
 
 ### Changed
 

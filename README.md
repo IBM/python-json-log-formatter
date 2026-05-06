@@ -9,6 +9,8 @@
         <img src="https://img.shields.io/github/v/release/IBM/python-json-log-formatter" /></a>
 </p>
 
+**IMPORTANT - DEPRECATION WARNING**: This module is deprecated and will be archived. Do not use. Use a self-written alternative or fork this repository.
+
 Supplements a default formatter configuration for machine-readable JSON logging and applies it.
 
 This module should be included as a sub-module in python projects with logging.

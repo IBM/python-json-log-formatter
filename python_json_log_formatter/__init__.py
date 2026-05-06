@@ -35,3 +35,11 @@ from python_json_log_formatter._version import __version__ as __version__
 from python_json_log_formatter.context_filter import (
     MESSAGE_KEY_CONST as MESSAGE_KEY_CONST,
 )
+
+import warnings
+
+warnings.warn(
+    "Package 'python_json_log_formatter' is deprecated and will no longer be maintained. Do not use.",
+    DeprecationWarning,
+    stacklevel=2,
+)
